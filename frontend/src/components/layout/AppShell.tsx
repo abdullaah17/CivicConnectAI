@@ -75,6 +75,8 @@ export const AppShell = ({ children, role }: AppShellProps) => {
           className={clsx(
             'flex-1 overflow-y-auto',
             'p-4 md:p-6 lg:p-8',
+            // Extra bottom padding on mobile so content clears the bottom nav bar
+            'pb-24 lg:pb-8',
             'min-w-0'
           )}
           tabIndex={-1}
@@ -82,6 +84,9 @@ export const AppShell = ({ children, role }: AppShellProps) => {
           {children}
         </main>
       </div>
+
+      {/* Mobile bottom nav — hidden on lg+ (sidebar takes over) */}
+      <BottomNavBar role={effectiveRole as UserRole} />
     </div>
   )
 }
