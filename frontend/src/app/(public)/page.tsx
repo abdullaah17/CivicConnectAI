@@ -215,9 +215,6 @@ export default function LandingPage() {
       <footer className="py-8 px-4 border-t" style={{ borderColor: 'rgba(225,224,204,0.15)' }}>
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-primary-700 rounded flex items-center justify-center">
-              <span className="text-white text-[10px] font-bold">CC</span>
-            </div>
             <span className="font-semibold" style={{ color: '#E1E0CC' }}>CivicConnect</span>
           </div>
           <p style={{ color: 'rgba(225,224,204,0.5)' }}>
