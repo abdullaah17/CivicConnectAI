@@ -26,12 +26,12 @@ interface NavItem {
 }
 
 const residentNav: NavItem[] = [
-  { label: 'Home',     href: '/dashboard',     icon: LayoutDashboard },
-  { label: 'Report',   href: '/requests/new',  icon: AlertCircle },
-  { label: 'Tickets',  href: '/requests',      icon: Ticket },
-  { label: 'Permits',  href: '/permits',       icon: FileText },
-  { label: 'Updates',  href: '/announcements', icon: Megaphone },
-  { label: 'Events',   href: '/events',        icon: Calendar },
+  { label: 'Home',    href: '/dashboard',     icon: LayoutDashboard },
+  { label: 'Report',  href: '/requests/new',  icon: AlertCircle },
+  { label: 'Tickets', href: '/requests',      icon: Ticket },
+  { label: 'Permits', href: '/permits',       icon: FileText },
+  { label: 'Updates', href: '/announcements', icon: Megaphone },
+  { label: 'Events',  href: '/events',        icon: Calendar },
 ]
 
 const staffNav: NavItem[] = [
@@ -40,11 +40,11 @@ const staffNav: NavItem[] = [
 ]
 
 const adminNav: NavItem[] = [
-  { label: 'Home',      href: '/admin/dashboard',    icon: LayoutDashboard },
-  { label: 'Tickets',   href: '/admin/tickets',      icon: Ticket },
-  { label: 'Staff',     href: '/admin/staff',        icon: Users },
-  { label: 'Analytics', href: '/admin/analytics',    icon: BarChart2 },
-  { label: 'Announce',  href: '/admin/announcements',icon: Megaphone },
+  { label: 'Home',     href: '/admin/dashboard',     icon: LayoutDashboard },
+  { label: 'Tickets',  href: '/admin/tickets',       icon: Ticket },
+  { label: 'Staff',    href: '/admin/staff',         icon: Users },
+  { label: 'Analytics',href: '/admin/analytics',     icon: BarChart2 },
+  { label: 'Announce', href: '/admin/announcements', icon: Megaphone },
 ]
 
 const superAdminNav: NavItem[] = [
@@ -73,35 +73,37 @@ export function BottomNavBar({ role, className }: BottomNavBarProps) {
 
   return (
     <motion.nav
-      initial={{ scale: 0.9, opacity: 0, y: 20 }}
-      animate={{ scale: 1, opacity: 1, y: 0 }}
+      initial={{ scale: 0.9, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
       transition={{ type: 'spring', stiffness: 300, damping: 26 }}
       role="navigation"
       aria-label="Bottom Navigation"
       className={cn(
-        // Base pill shape
-        'bg-white border border-gray-200 rounded-full flex items-center p-2 shadow-xl space-x-1 h-[56px]',
-        // Fixed to bottom center on mobile only
+        // Pill shape — glass surface matching app aesthetic
+        'glass border border-white/30 rounded-full',
+        'flex items-center p-2 shadow-xl space-x-1',
+        'h-[52px] min-w-[320px] max-w-[95vw]',
+        // Fixed bottom-center, mobile only
         'fixed bottom-4 left-1/2 -translate-x-1/2 z-50 lg:hidden',
-        // Prevent overflow on small screens
-        'max-w-[95vw]',
         className
       )}
     >
       {navItems.map((item) => {
         const Icon = item.icon
-        const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+        const isActive =
+          pathname === item.href || pathname.startsWith(item.href + '/')
 
         return (
           <motion.button
             key={item.href}
-            whileTap={{ scale: 0.93 }}
+            whileTap={{ scale: 0.97 }}
             className={cn(
-              'flex items-center px-3 py-2 rounded-full transition-colors duration-200 relative h-10 min-w-[44px] min-h-[40px] max-h-[44px]',
+              'flex items-center gap-0 px-3 py-2 rounded-full transition-colors duration-200',
+              'relative h-10 min-w-[44px] min-h-[40px] max-h-[44px]',
               isActive
                 ? 'bg-primary-700/10 text-primary-700 gap-2'
-                : 'bg-transparent text-gray-400 hover:bg-gray-100 hover:text-gray-600',
-              'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-700 focus-visible:ring-offset-1'
+                : 'bg-transparent text-gray-500 hover:bg-white/40 hover:text-gray-700',
+              'focus:outline-none focus-visible:ring-0'
             )}
             onClick={() => router.push(item.href)}
             aria-label={item.label}
@@ -110,29 +112,31 @@ export function BottomNavBar({ role, className }: BottomNavBarProps) {
           >
             <Icon
               size={22}
-              strokeWidth={isActive ? 2.2 : 1.8}
+              strokeWidth={2}
               aria-hidden
-              className="transition-all duration-200 flex-shrink-0"
+              className="transition-colors duration-200 flex-shrink-0"
             />
 
+            {/* Animated label — expands when active */}
             <motion.div
               initial={false}
               animate={{
-                width: isActive ? `${MOBILE_LABEL_WIDTH}px` : '0px',
-                opacity: isActive ? 1 : 0,
-                marginLeft: isActive ? '6px' : '0px',
+                width:      isActive ? `${MOBILE_LABEL_WIDTH}px` : '0px',
+                opacity:    isActive ? 1 : 0,
+                marginLeft: isActive ? '8px' : '0px',
               }}
               transition={{
-                width:       { type: 'spring', stiffness: 350, damping: 32 },
-                opacity:     { duration: 0.18 },
-                marginLeft:  { duration: 0.18 },
+                width:      { type: 'spring', stiffness: 350, damping: 32 },
+                opacity:    { duration: 0.19 },
+                marginLeft: { duration: 0.19 },
               }}
-              className="overflow-hidden flex items-center"
+              className="overflow-hidden flex items-center max-w-[72px]"
             >
               <span
                 className={cn(
-                  'font-semibold text-xs whitespace-nowrap select-none text-primary-700',
-                  'text-[clamp(0.625rem,0.5263rem+0.5263vw,0.8rem)] leading-none'
+                  'font-medium whitespace-nowrap select-none overflow-hidden text-ellipsis leading-[1.9]',
+                  'text-[clamp(0.625rem,0.5263rem+0.5263vw,1rem)]',
+                  isActive ? 'text-primary-700' : 'opacity-0'
                 )}
                 title={item.label}
               >
