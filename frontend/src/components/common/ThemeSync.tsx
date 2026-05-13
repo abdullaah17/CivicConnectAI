@@ -1,19 +1,18 @@
 'use client'
 
 /**
- * ThemeSync
- * Runs once on mount and applies the persisted theme from localStorage
- * to <html data-theme="..."> before the first paint.
- * Also subscribes to store changes so toggling updates the attribute live.
+ * ThemeSync — the ONLY place that touches document.documentElement.
+ * Runs inside useEffect so it never fires during SSR or hydration.
  */
 import { useEffect } from 'react'
-import { useUIStore } from '@/store/uiStore'
+import { useUIStore, applyThemeToDom } from '@/store/uiStore'
 
 export const ThemeSync = () => {
   const theme = useUIStore((s) => s.theme)
 
+  // Apply on mount (picks up persisted value) and on every change
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
+    applyThemeToDom(theme)
   }, [theme])
 
   return null

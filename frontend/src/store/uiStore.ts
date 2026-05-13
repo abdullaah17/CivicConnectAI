@@ -17,7 +17,8 @@ interface UIState {
   setTheme: (theme: 'light' | 'dark') => void
 }
 
-const applyTheme = (theme: 'light' | 'dark') => {
+// Safe DOM apply — only called from browser context (never during SSR/hydration)
+export const applyThemeToDom = (theme: 'light' | 'dark') => {
   if (typeof document !== 'undefined') {
     document.documentElement.setAttribute('data-theme', theme)
   }
@@ -41,24 +42,17 @@ export const useUIStore = create<UIState>()(
 
       setSidebarOpen: (open) => set({ sidebarOpen: open }),
 
+      // Only update store state — ThemeSync handles DOM
       toggleTheme: () =>
-        set((state) => {
-          const next = state.theme === 'light' ? 'dark' : 'light'
-          applyTheme(next)
-          return { theme: next }
-        }),
+        set((state) => ({ theme: state.theme === 'light' ? 'dark' : 'light' })),
 
-      setTheme: (theme) => {
-        applyTheme(theme)
-        set({ theme })
-      },
+      setTheme: (theme) => set({ theme }),
     }),
     {
       name: 'civic-ui',
+      // Only persist theme
       partialize: (state) => ({ theme: state.theme }),
-      onRehydrateStorage: () => (state) => {
-        if (state?.theme) applyTheme(state.theme)
-      },
+      // NO onRehydrateStorage — that was causing the hydration crash
     }
   )
 )
