@@ -1,7 +1,7 @@
-﻿const { getPrisma } = require('./prismaService');
+const { getPrisma } = require('./prismaService');
 const logger = require('../utils/logger');
 
-let io; // Socket.io instance — injected at startup
+let io; // Socket.io instance - injected at startup
 
 function setIo(socketIo) {
   io = socketIo;

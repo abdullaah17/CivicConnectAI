@@ -7,7 +7,7 @@ const upload = require('../middleware/upload');
 const validate = require('../middleware/validate');
 const { createPermitSchema, updateDraftSchema, permitStatusSchema } = require('../schemas/permit.schema');
 
-// Public route — no auth
+// Public route - no auth
 router.get('/verify/:permitNumber', asyncHandler(ctrl.verifyPermit));
 
 router.use(authenticate);

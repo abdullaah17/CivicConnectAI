@@ -1,4 +1,4 @@
-﻿const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');
 
 const ROUNDS = parseInt(process.env.BCRYPT_ROUNDS || '12', 10);
 

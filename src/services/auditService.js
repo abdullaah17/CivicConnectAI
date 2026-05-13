@@ -1,4 +1,4 @@
-﻿const { getPrisma } = require('./prismaService');
+const { getPrisma } = require('./prismaService');
 
 /**
  * Writes an entry to the audit_logs table.

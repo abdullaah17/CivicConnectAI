@@ -1,4 +1,4 @@
-﻿const { JSDOM } = require('jsdom');
+const { JSDOM } = require('jsdom');
 const createDOMPurify = require('dompurify');
 
 const window = new JSDOM('').window;

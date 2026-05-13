@@ -17,7 +17,7 @@ function encrypt(text) {
 }
 
 async function main() {
-  console.log('?? Seeding CivicConnect database...');
+  console.log('[seed] Seeding CivicConnect database...');
 
   // -- Departments ------------------------------------------
   const [infra, permits, safety] = await Promise.all([
@@ -37,7 +37,7 @@ async function main() {
       create: { name: 'Public Safety', code: 'SAF', description: 'Emergency response, law enforcement support, and public safety.', slaConfig: { low: 48, medium: 24, high: 8, emergency: 2 } },
     }),
   ]);
-  console.log('? Departments created');
+  console.log('[seed] Departments created');
 
   // -- Ticket sequences -------------------------------------
   for (const code of ['INF', 'PER', 'SAF']) {
@@ -47,7 +47,7 @@ async function main() {
       create: { departmentCode: code, year: 2026, lastSeq: 0 },
     });
   }
-  console.log('? Ticket sequences initialized');
+  console.log('[seed] Ticket sequences initialized');
 
   // -- Super Admin -------------------------------------------
   const superAdminHash = await bcrypt.hash('SuperAdmin@2026', ROUNDS);
@@ -56,7 +56,7 @@ async function main() {
     update: {},
     create: { fullName: 'Super Administrator', email: 'superadmin@civicconnect.city', passwordHash: superAdminHash, role: 'super_admin', otpVerified: true, isActive: true },
   });
-  console.log('? Super Admin: superadmin@civicconnect.city / SuperAdmin@2026');
+  console.log('[seed] Super Admin: superadmin@civicconnect.city / SuperAdmin@2026');
 
   // -- Dept Admins -------------------------------------------
   const adminPass = await bcrypt.hash('Admin@2026', ROUNDS);
@@ -80,9 +80,9 @@ async function main() {
       create: { fullName: 'Omar Farooq', email: 'admin.safety@civicconnect.city', passwordHash: adminPass, role: 'dept_admin', departmentId: safety.id, otpVerified: true, isActive: true, totpSecret: encryptedSecret, totpEnabled: true },
     }),
   ]);
-  console.log('? Dept Admins created (password: Admin@2026)');
-  console.log(`   TOTP Secret (all admins): ${totpSecret.base32}`);
-  console.log(`   TOTP OTPAuth URL: ${totpSecret.otpauth_url}`);
+  console.log('[seed] Dept Admins created (password: Admin@2026)');
+  console.log('[seed] TOTP Secret (all admins): ' + totpSecret.base32);
+  console.log('[seed] TOTP OTPAuth URL: ' + totpSecret.otpauth_url);
 
   // -- Staff -------------------------------------------------
   const staffPass = await bcrypt.hash('Staff@2026', ROUNDS);
@@ -104,7 +104,7 @@ async function main() {
     });
     staffUsers.push(u);
   }
-  console.log('? Staff created (password: Staff@2026)');
+  console.log('[seed] Staff created (password: Staff@2026)');
 
   // -- Residents ---------------------------------------------
   const residentPass = await bcrypt.hash('Resident@2026', ROUNDS);
@@ -130,7 +130,7 @@ async function main() {
     });
     residents.push(u);
   }
-  console.log('? Residents created (password: Resident@2026)');
+  console.log('[seed] Residents created (password: Resident@2026)');
 
   // -- Tickets -----------------------------------------------
   const ticketDefs = [
@@ -174,7 +174,7 @@ async function main() {
       create: { id: ticket.id, ticketId: ticket.id, toStatus: 'submitted', changedBy: residents[def.residentIdx].id, note: 'Ticket submitted' },
     }).catch(() => {});
   }
-  console.log('? 10 tickets created');
+  console.log('[seed] 10 tickets created');
 
   // -- Permit Applications -----------------------------------
   const permitDefs = [
@@ -203,20 +203,20 @@ async function main() {
       },
     });
   }
-  console.log('? 6 permit applications created');
+  console.log('[seed] 6 permit applications created');
 
   // -- Announcements -----------------------------------------
   const announcementDefs = [
-    { authorId: infraAdmin.id, title: 'Scheduled Water Outage — Sector F-7', body: 'Water supply will be interrupted on May 15, 2026 from 8 AM to 2 PM for maintenance work. Please store water in advance.', category: 'infrastructure', priority: 'urgent', departmentId: infra.id },
+    { authorId: infraAdmin.id, title: 'Scheduled Water Outage - Sector F-7', body: 'Water supply will be interrupted on May 15, 2026 from 8 AM to 2 PM for maintenance work. Please store water in advance.', category: 'infrastructure', priority: 'urgent', departmentId: infra.id },
     { authorId: safetyAdmin.id, title: 'Emergency: Gas Leak Reported in G-9', body: 'A gas leak has been reported in the G-9 sector. Residents are advised to evacuate immediately and call emergency services.', category: 'emergency', priority: 'emergency', isEmergency: true },
     { authorId: permitsAdmin.id, title: 'New Business License Renewal Process', body: 'Starting June 1, 2026, all business license renewals must be submitted through the CivicConnect portal. Physical submissions will no longer be accepted.', category: 'general', priority: 'normal', departmentId: permits.id },
-    { authorId: superAdmin.id, title: 'City Cleanliness Drive — May 20', body: 'Join us for the annual city cleanliness drive on May 20, 2026. Volunteers are welcome. Meet at City Hall at 7 AM.', category: 'culture', priority: 'normal', isArchived: true },
+    { authorId: superAdmin.id, title: 'City Cleanliness Drive - May 20', body: 'Join us for the annual city cleanliness drive on May 20, 2026. Volunteers are welcome. Meet at City Hall at 7 AM.', category: 'culture', priority: 'normal', isArchived: true },
   ];
 
   for (const def of announcementDefs) {
     await prisma.announcement.create({ data: { ...def, isEmergency: def.isEmergency || false, isArchived: def.isArchived || false } });
   }
-  console.log('? 4 announcements created');
+  console.log('[seed] 4 announcements created');
 
   // -- Events ------------------------------------------------
   const eventDefs = [
@@ -231,7 +231,7 @@ async function main() {
     createdEvents.push(ev);
   }
 
-  // Fill the safety workshop to capacity (50 registrations)
+  // Fill the safety workshop registrations
   const safetyWorkshop = createdEvents[1];
   for (let i = 0; i < Math.min(residents.length, safetyWorkshop.capacity); i++) {
     await prisma.eventRegistration.upsert({
@@ -240,16 +240,16 @@ async function main() {
       create: { eventId: safetyWorkshop.id, userId: residents[i].id },
     });
   }
-  console.log('? 3 events created (1 upcoming, 1 full, 1 past)');
+  console.log('[seed] 3 events created (1 upcoming, 1 full, 1 past)');
 
-  console.log('\n?? Seed complete! Summary:');
+  console.log('\n[seed] Seed complete! Summary:');
   console.log('   Super Admin:  superadmin@civicconnect.city / SuperAdmin@2026');
   console.log('   Dept Admins:  admin.infra@civicconnect.city / Admin@2026  (2FA enabled)');
   console.log('                 admin.permits@civicconnect.city / Admin@2026  (2FA enabled)');
   console.log('                 admin.safety@civicconnect.city / Admin@2026  (2FA enabled)');
   console.log('   Staff:        staff1.infra@civicconnect.city / Staff@2026  (and 5 more)');
   console.log('   Residents:    ayesha@example.com / Resident@2026  (and 9 more)');
-  console.log(`   TOTP Secret:  ${totpSecret.base32}`);
+  console.log('   TOTP Secret:  ' + totpSecret.base32);
 }
 
 main()

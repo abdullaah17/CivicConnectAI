@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Enforces department scope for dept_admin users.
  * Sets req.scopedDepartmentId so controllers can filter by it.
  */

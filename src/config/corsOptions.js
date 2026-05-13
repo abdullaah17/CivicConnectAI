@@ -1,4 +1,4 @@
-﻿const corsOptions = {
+const corsOptions = {
   origin: (origin, callback) => {
     const allowed = process.env.ALLOWED_ORIGINS?.split(',').map((o) => o.trim()) ?? [];
     // Allow requests with no origin (mobile apps, curl, Postman)

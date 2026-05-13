@@ -1,4 +1,4 @@
-﻿const { z } = require('zod');
+const { z } = require('zod');
 
 const slaConfigSchema = z.object({
   low: z.number().int().min(24).max(720),

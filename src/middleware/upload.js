@@ -1,4 +1,4 @@
-﻿const multer = require('multer');
+const multer = require('multer');
 
 const ALLOWED_MIME_TYPES = [
   'image/jpeg',

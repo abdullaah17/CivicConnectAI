@@ -45,7 +45,7 @@ function startSlaMonitor() {
 
           sendEmail({
             to: admin.email,
-            subject: `[URGENT] SLA Breach Alert — ${ticket.ticketNumber}`,
+            subject: `[URGENT] SLA Breach Alert - ${ticket.ticketNumber}`,
             template: 'sla-breach-alert',
             data: {
               ADMIN_NAME: admin.fullName,

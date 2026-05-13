@@ -1,4 +1,4 @@
-﻿const { z } = require('zod');
+const { z } = require('zod');
 
 const createTicketSchema = z.object({
   title: z.string().min(10, 'Title must be at least 10 characters').max(150),

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Generates a sequential permit number.
  * Format: PER-{YEAR}-{SEQ_5_DIGITS}  e.g. PER-2026-00089
  * Uses a simple DB sequence approach similar to ticket IDs.

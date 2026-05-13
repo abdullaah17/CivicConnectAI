@@ -1,4 +1,4 @@
-﻿const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 const { verifyAccessToken } = require('../config/jwtConfig');
 
 /**

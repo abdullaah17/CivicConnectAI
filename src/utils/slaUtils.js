@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Calculates the SLA deadline based on department config and ticket priority.
  * @param {Object} slaConfig - e.g. { low: 72, medium: 48, high: 24, emergency: 4 }
  * @param {string} priority  - 'low' | 'medium' | 'high' | 'emergency'

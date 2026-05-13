@@ -16,7 +16,7 @@ async function getDepartment(req, res) {
   return res.status(200).json({ success: true, data: dept });
 }
 
-// PATCH /departments/:id  (super_admin — update SLA config)
+// PATCH /departments/:id  (super_admin - update SLA config)
 async function updateDepartment(req, res) {
   const { sla_config, name, description } = req.body;
   const prisma = getPrisma();

@@ -1,4 +1,4 @@
-﻿const { z } = require('zod');
+const { z } = require('zod');
 
 const createAnnouncementSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(200),

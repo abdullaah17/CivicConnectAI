@@ -1,4 +1,4 @@
-﻿const { z } = require('zod');
+const { z } = require('zod');
 
 const createPermitSchema = z.object({
   permit_type: z.enum(['construction_permit', 'event_permit', 'business_license_renewal']),

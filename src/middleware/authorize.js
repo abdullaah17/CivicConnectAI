@@ -1,4 +1,4 @@
-﻿/**
+/**
  * RBAC middleware factory.
  * Usage: authorize(['staff', 'dept_admin'])
  */

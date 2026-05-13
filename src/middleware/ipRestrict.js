@@ -1,4 +1,4 @@
-﻿const { createAuditLog } = require('../services/auditService');
+const { createAuditLog } = require('../services/auditService');
 
 const ALLOWED_IPS = process.env.SUPER_ADMIN_ALLOWED_IPS?.split(',').map((ip) => ip.trim()) ?? [];
 

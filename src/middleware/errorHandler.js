@@ -1,7 +1,7 @@
-﻿const logger = require('../utils/logger');
+const logger = require('../utils/logger');
 
 /**
- * Global error handler — last middleware in the Express chain.
+ * Global error handler - last middleware in the Express chain.
  * Never exposes stack traces or internal details to the client.
  */
 function globalErrorHandler(err, req, res, next) {
@@ -74,7 +74,7 @@ function globalErrorHandler(err, req, res, next) {
     });
   }
 
-  // Default — never expose internals
+  // Default - never expose internals
   res.status(500).json({
     success: false,
     error: {

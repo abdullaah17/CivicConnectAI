@@ -10,7 +10,7 @@ const { createTicketSchema, statusUpdateSchema, assignTicketSchema, commentSchem
 
 router.use(authenticate);
 
-// Order matters — specific paths before :id
+// Order matters - specific paths before :id
 router.get('/my',              authorize(['resident']),                                    asyncHandler(ctrl.myTickets));
 router.get('/stats',           authorize(['staff','dept_admin','super_admin']),            asyncHandler(ctrl.getStats));
 router.post('/upload',         authorize(['resident']), upload.single('file'),             asyncHandler(ctrl.uploadAttachment));

@@ -33,7 +33,7 @@ server.listen(PORT, () => {
 
 // -- Graceful shutdown -------------------------------------
 async function shutdown(signal) {
-  logger.info(`${signal} received — shutting down gracefully`);
+  logger.info(`${signal} received - shutting down gracefully`);
   server.close(async () => {
     await disconnectPrisma();
     logger.info('Server closed');

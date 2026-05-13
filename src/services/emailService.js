@@ -1,4 +1,4 @@
-﻿const transporter = require('../config/email');
+const transporter = require('../config/email');
 const fs = require('fs');
 const path = require('path');
 const logger = require('../utils/logger');

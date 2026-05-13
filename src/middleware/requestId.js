@@ -1,4 +1,4 @@
-﻿const { randomUUID } = require('crypto');
+const { randomUUID } = require('crypto');
 
 /**
  * Injects a unique request ID on every incoming request.

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Wraps async route handlers to forward errors to Express error handler.
  * Eliminates try/catch boilerplate in every controller.
  */
