@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { MapPin } from 'lucide-react'
 
 export interface HeatmapPoint {
@@ -19,7 +19,6 @@ const DEFAULT_LAT = 33.6844
 const DEFAULT_LNG = 73.0479
 const DEFAULT_ZOOM = 11
 
-// Fallback demo points around Islamabad if no real data
 const DEMO_POINTS: HeatmapPoint[] = [
   { lat: 33.7215, lng: 73.0433, intensity: 8, label: 'F-7 Markaz' },
   { lat: 33.6938, lng: 73.0651, intensity: 5, label: 'G-9' },
@@ -35,11 +34,27 @@ export const ComplaintHeatmap = ({ points, title = 'Complaint Distribution' }: C
   const mapRef = useRef<HTMLDivElement>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapInstanceRef = useRef<any>(null)
+  const [mounted, setMounted] = useState(false)
 
   const displayPoints = points.length > 0 ? points : DEMO_POINTS
 
+  // Only render on client
   useEffect(() => {
-    if (typeof window === 'undefined' || mapInstanceRef.current) return
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!mounted || mapInstanceRef.current) return
+
+    // Inject Leaflet CSS dynamically — avoids invalid <link> in JSX
+    if (!document.getElementById('leaflet-css')) {
+      const link = document.createElement('link')
+      link.id = 'leaflet-css'
+      link.rel = 'stylesheet'
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
+      link.crossOrigin = ''
+      document.head.appendChild(link)
+    }
 
     import('leaflet').then((L) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -66,29 +81,17 @@ export const ComplaintHeatmap = ({ points, title = 'Complaint Distribution' }: C
 
       mapInstanceRef.current = map
 
-      // Render circles sized by intensity
       displayPoints.forEach((pt) => {
         const intensity = pt.intensity ?? 1
         const radius = Math.max(300, intensity * 400)
         const opacity = Math.min(0.7, 0.2 + intensity * 0.06)
-
-        // Color: green → amber → red based on intensity
-        const color =
-          intensity >= 7 ? '#DC2626' :
-          intensity >= 4 ? '#F59E0B' :
-          '#16A34A'
+        const color = intensity >= 7 ? '#DC2626' : intensity >= 4 ? '#F59E0B' : '#16A34A'
 
         L.circle([pt.lat, pt.lng], {
-          radius,
-          color,
-          fillColor: color,
-          fillOpacity: opacity,
-          weight: 1,
+          radius, color, fillColor: color, fillOpacity: opacity, weight: 1,
         })
           .addTo(map)
-          .bindPopup(
-            `<strong>${pt.label ?? 'Complaint cluster'}</strong><br/>${intensity} report${intensity !== 1 ? 's' : ''}`
-          )
+          .bindPopup(`<strong>${pt.label ?? 'Complaint cluster'}</strong><br/>${intensity} report${intensity !== 1 ? 's' : ''}`)
       })
     })
 
@@ -99,7 +102,7 @@ export const ComplaintHeatmap = ({ points, title = 'Complaint Distribution' }: C
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [mounted])
 
   return (
     <div className="bg-white rounded-lg shadow-card border border-gray-100 p-5">
@@ -111,33 +114,26 @@ export const ComplaintHeatmap = ({ points, title = 'Complaint Distribution' }: C
         )}
       </div>
 
-      {/* Leaflet CSS */}
-      <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        crossOrigin=""
-      />
+      {mounted ? (
+        <div
+          ref={mapRef}
+          className="w-full h-72 rounded-lg overflow-hidden z-0"
+          aria-label="Complaint heatmap"
+          role="img"
+        />
+      ) : (
+        <div className="w-full h-72 rounded-lg bg-gray-100 animate-pulse" />
+      )}
 
-      <div
-        ref={mapRef}
-        className="w-full h-72 rounded-lg overflow-hidden z-0"
-        aria-label="Complaint heatmap — geographic distribution of civic complaints"
-        role="img"
-      />
-
-      {/* Legend */}
       <div className="flex items-center gap-4 mt-3 text-xs text-gray-500">
         <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded-full bg-success inline-block" aria-hidden="true" />
-          Low (1–3)
+          <span className="w-3 h-3 rounded-full bg-success inline-block" aria-hidden="true" />Low (1–3)
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded-full bg-amber-500 inline-block" aria-hidden="true" />
-          Medium (4–6)
+          <span className="w-3 h-3 rounded-full bg-amber-500 inline-block" aria-hidden="true" />Medium (4–6)
         </span>
         <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded-full bg-danger inline-block" aria-hidden="true" />
-          High (7+)
+          <span className="w-3 h-3 rounded-full bg-danger inline-block" aria-hidden="true" />High (7+)
         </span>
       </div>
     </div>

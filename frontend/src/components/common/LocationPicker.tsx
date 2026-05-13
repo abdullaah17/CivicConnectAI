@@ -9,7 +9,6 @@ interface LocationPickerProps {
   className?: string
 }
 
-// Islamabad, Pakistan default center
 const DEFAULT_LAT = 33.6844
 const DEFAULT_LNG = 73.0479
 const DEFAULT_ZOOM = 12
@@ -22,13 +21,26 @@ export const LocationPicker = ({ value, onChange, className }: LocationPickerPro
   const markerRef = useRef<any>(null)
   const [picked, setPicked] = useState(false)
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    if (typeof window === 'undefined' || mapInstanceRef.current) return
+    setMounted(true)
+  }, [])
 
-    // Dynamically import leaflet to avoid SSR issues
+  useEffect(() => {
+    if (!mounted || mapInstanceRef.current) return
+
+    // Inject Leaflet CSS dynamically
+    if (!document.getElementById('leaflet-css')) {
+      const link = document.createElement('link')
+      link.id = 'leaflet-css'
+      link.rel = 'stylesheet'
+      link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'
+      link.crossOrigin = ''
+      document.head.appendChild(link)
+    }
+
     import('leaflet').then((L) => {
-      // Fix default icon paths broken by webpack
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       delete (L.Icon.Default.prototype as any)._getIconUrl
       L.Icon.Default.mergeOptions({
@@ -64,14 +76,10 @@ export const LocationPicker = ({ value, onChange, className }: LocationPickerPro
         setCoords({ lat, lng })
         setPicked(true)
 
-        // Reverse geocode via Nominatim (free, no API key)
-        fetch(
-          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
-        )
+        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
           .then((r) => r.json())
           .then((data) => {
-            const address = data.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`
-            onChange(address)
+            onChange(data.display_name || `${lat.toFixed(5)}, ${lng.toFixed(5)}`)
           })
           .catch(() => {
             onChange(`${lat.toFixed(5)}, ${lng.toFixed(5)}`)
@@ -87,7 +95,7 @@ export const LocationPicker = ({ value, onChange, className }: LocationPickerPro
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [mounted])
 
   return (
     <div className={className}>
@@ -99,19 +107,16 @@ export const LocationPicker = ({ value, onChange, className }: LocationPickerPro
         </span>
       </div>
 
-      {/* Leaflet CSS */}
-      <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        crossOrigin=""
-      />
-
-      <div
-        ref={mapRef}
-        className="w-full h-56 rounded-lg border border-gray-200 overflow-hidden z-0"
-        aria-label="Interactive map — click to pin your location"
-        role="application"
-      />
+      {mounted ? (
+        <div
+          ref={mapRef}
+          className="w-full h-56 rounded-lg border border-gray-200 overflow-hidden z-0"
+          aria-label="Interactive map — click to pin your location"
+          role="application"
+        />
+      ) : (
+        <div className="w-full h-56 rounded-lg border border-gray-200 bg-gray-100 animate-pulse" />
+      )}
 
       {picked && coords && (
         <p className="mt-1.5 text-xs text-success flex items-center gap-1" aria-live="polite">
