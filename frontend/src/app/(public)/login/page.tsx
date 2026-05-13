@@ -98,7 +98,7 @@ export default function LoginPage() {
               type="submit"
               size="lg"
               loading={isSubmitting}
-              className="w-full !bg-[#E1E0CC] !text-black hover:!bg-[#cccbb8] font-semibold"
+              className="w-full !bg-black !text-[#E1E0CC] hover:!bg-black/80 font-semibold"
             >
               Sign In
             </Button>
