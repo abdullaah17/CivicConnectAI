@@ -53,7 +53,7 @@ export default function LandingPage() {
                 </span>
                 {/* "Connect" — slightly smaller so it fits on one line */}
                 <span className="block text-[13vw] sm:text-[12vw] md:text-[11vw] lg:text-[10vw] xl:text-[9.5vw]">
-                  <WordsPullUp text="Connect" showAsterisk />
+                  <WordsPullUp text="Connect" />
                 </span>
               </h1>
             </div>
