@@ -55,10 +55,10 @@ export const Navbar = () => {
             <Menu className="w-5 h-5" />
           </button>
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary-700 rounded flex items-center justify-center">
-              <span className="text-white text-xs font-bold font-display">CC</span>
+            <div className="w-8 h-8 bg-black rounded flex items-center justify-center">
+              <span className="text-[#E1E0CC] text-xs font-bold font-display">CC</span>
             </div>
-            <span className="hidden sm:block font-display font-bold text-primary-700 text-lg">
+            <span className="hidden sm:block font-display font-bold text-gray-900 text-lg">
               CivicConnect
             </span>
           </Link>
@@ -102,12 +102,12 @@ export const Navbar = () => {
               aria-haspopup="true"
               aria-label="User menu"
             >
-              <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center overflow-hidden">
+              <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center overflow-hidden">
                 {user?.profile_photo_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={user.profile_photo_url} alt={user.name} className="w-full h-full object-cover" />
                 ) : (
-                  <User className="w-4 h-4 text-primary-700" aria-hidden="true" />
+                  <User className="w-4 h-4 text-[#E1E0CC]" aria-hidden="true" />
                 )}
               </div>
               <span className="hidden md:block text-sm font-medium text-gray-700 max-w-[120px] truncate">

@@ -27,7 +27,7 @@ export default function AdminDashboard() {
         actions={
           <Link
             href="/admin/analytics"
-            className="inline-flex items-center gap-2 text-sm font-medium text-primary-700 hover:text-primary-900 transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
           >
             <BarChart2 className="w-4 h-4" aria-hidden="true" />
             View Analytics
@@ -35,25 +35,23 @@ export default function AdminDashboard() {
         }
       />
 
-      {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {statsLoading ? (
           Array.from({ length: 4 }).map((_, i) => <SkeletonKPICard key={i} />)
         ) : (
           <>
-            <KPICard label="Total Tickets" value={stats?.total ?? 0} icon={<Ticket className="w-5 h-5" />} color="blue" />
-            <KPICard label="Open Tickets" value={stats?.open ?? 0} icon={<AlertTriangle className="w-5 h-5" />} color="amber" />
-            <KPICard label="Avg Resolution" value={stats?.avg_resolution_hours ?? 0} suffix="h" icon={<Clock className="w-5 h-5" />} color="purple" />
-            <KPICard label="SLA Breached" value={stats?.sla_breached ?? 0} icon={<CheckCircle2 className="w-5 h-5" />} color="red" />
+            <KPICard label="Total Tickets"   value={stats?.total ?? 0}                icon={<Ticket className="w-5 h-5" />} />
+            <KPICard label="Open Tickets"    value={stats?.open ?? 0}                 icon={<AlertTriangle className="w-5 h-5" />} />
+            <KPICard label="Avg Resolution"  value={stats?.avg_resolution_hours ?? 0} suffix="h" icon={<Clock className="w-5 h-5" />} />
+            <KPICard label="SLA Breached"    value={stats?.sla_breached ?? 0}         icon={<CheckCircle2 className="w-5 h-5" />} />
           </>
         )}
       </div>
 
-      {/* Active tickets */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display font-semibold text-gray-900 text-lg">Active Tickets</h2>
-          <Link href="/admin/tickets" className="text-sm text-primary-700 hover:text-primary-900 font-medium">
+          <h2 className="font-semibold text-gray-900 text-lg">Active Tickets</h2>
+          <Link href="/admin/tickets" className="text-sm text-[#E1E0CC]/80 hover:text-[#E1E0CC] transition-colors font-medium">
             View all →
           </Link>
         </div>

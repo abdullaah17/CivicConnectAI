@@ -93,8 +93,8 @@ export const Sidebar = ({ role }: SidebarProps) => {
                   'flex items-center gap-3 px-3 py-2.5 rounded text-sm font-medium transition-colors duration-150',
                   'min-h-[44px]',
                   isActive
-                    ? 'bg-primary-700 text-white'
-                    : 'text-gray-700 hover:bg-gray-100 hover:text-primary-700'
+                    ? 'bg-black text-[#E1E0CC]'
+                    : 'text-gray-700 hover:bg-white/30 hover:text-gray-900'
                 )}
                 aria-current={isActive ? 'page' : undefined}
               >

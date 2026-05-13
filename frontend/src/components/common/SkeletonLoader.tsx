@@ -52,7 +52,11 @@ export const SkeletonChart = () => (
 )
 
 export const SkeletonKPICard = () => (
-  <div className="bg-white rounded-lg p-5 shadow-card space-y-2" aria-busy="true">
+  <div
+    className="rounded-lg p-5 shadow-card border border-white/20 space-y-2"
+    style={{ background: 'rgba(255,255,255,0.10)', backdropFilter: 'blur(12px)' }}
+    aria-busy="true"
+  >
     <Skeleton className="h-4 w-28" />
     <Skeleton className="h-8 w-20" />
     <Skeleton className="h-3 w-24" />
