@@ -53,16 +53,12 @@ export const useRegister = () =>
       password: string
       profile_photo?: File
     }) => {
-      const formData = new FormData()
-      formData.append('name', payload.name)
-      formData.append('email', payload.email)
-      formData.append('password', payload.password)
-      formData.append('confirm_password', payload.password)
-      if (payload.profile_photo) {
-        formData.append('profile_photo', payload.profile_photo)
-      }
-      const { data } = await api.post('/auth/register', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+      // Backend expects JSON, not multipart
+      const { data } = await api.post('/auth/register', {
+        name: payload.name,
+        email: payload.email,
+        password: payload.password,
+        confirm_password: payload.password,
       })
       return data
     },
