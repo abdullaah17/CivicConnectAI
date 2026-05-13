@@ -54,10 +54,10 @@ export const useRegister = () =>
       profile_photo?: File
     }) => {
       const formData = new FormData()
-      // Backend expects full_name
-      formData.append('full_name', payload.name)
+      formData.append('name', payload.name)
       formData.append('email', payload.email)
       formData.append('password', payload.password)
+      formData.append('confirm_password', payload.password)
       if (payload.profile_photo) {
         formData.append('profile_photo', payload.profile_photo)
       }
