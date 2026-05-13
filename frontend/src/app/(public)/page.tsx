@@ -6,8 +6,6 @@ import { ArrowRight, Ticket, FileText, Megaphone, Shield, Sun, Moon } from 'luci
 import { WordsPullUp } from '@/components/common/WordsPullUp'
 import { useUIStore } from '@/store/uiStore'
 
-const navItems = ['Our Story', 'Services', 'Permits', 'Events', 'Contact']
-
 const features = [
   { icon: <Ticket className="w-6 h-6" />, title: 'Report Issues', description: 'Submit civic complaints and track their resolution in real time.' },
   { icon: <FileText className="w-6 h-6" />, title: 'Apply for Permits', description: 'Construction, event, and business permits — all in one place.' },
@@ -21,35 +19,18 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'transparent' }}>
 
-      {/* ── Navbar (Prisma-style pill) ─────────────────────────────────────── */}
-      <nav className="absolute left-1/2 top-0 z-20 -translate-x-1/2">
-        <div className="flex items-center gap-3 rounded-b-2xl bg-black px-4 py-2 sm:gap-6 md:gap-12 md:rounded-b-3xl md:px-8 lg:gap-14">
-          {navItems.map((item) => (
-            <a
-              key={item}
-              href="#"
-              className="text-[10px] transition-colors sm:text-xs md:text-sm"
-              style={{ color: 'rgba(225, 224, 204, 0.8)' }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = '#E1E0CC')}
-              onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(225, 224, 204, 0.8)')}
-            >
-              {item}
-            </a>
-          ))}
-          {/* Dark mode toggle */}
-          <button
-            onClick={toggleTheme}
-            className="p-1 rounded transition-colors hover:bg-white/10"
-            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            style={{ color: 'rgba(225, 224, 204, 0.8)' }}
-          >
-            {theme === 'dark'
-              ? <Sun className="w-4 h-4" aria-hidden="true" />
-              : <Moon className="w-4 h-4" aria-hidden="true" />
-            }
-          </button>
-        </div>
-      </nav>
+      {/* Dark mode toggle — fixed top-right corner */}
+      <button
+        onClick={toggleTheme}
+        className="fixed top-4 right-4 z-50 p-2.5 rounded-full bg-black/60 backdrop-blur-sm hover:bg-black/80 transition-colors"
+        aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        style={{ color: '#E1E0CC' }}
+      >
+        {theme === 'dark'
+          ? <Sun className="w-4 h-4" aria-hidden="true" />
+          : <Moon className="w-4 h-4" aria-hidden="true" />
+        }
+      </button>
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
       <section className="h-screen w-full relative flex flex-col justify-end overflow-hidden">
