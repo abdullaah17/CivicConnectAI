@@ -92,14 +92,19 @@ export default function RegisterPage() {
               {...register('confirmPassword')}
             />
 
-            <Button type="submit" size="lg" loading={isSubmitting} className="w-full">
+            <Button
+              type="submit"
+              size="lg"
+              loading={isSubmitting}
+              className="w-full !bg-[#E1E0CC] !text-black hover:!bg-[#cccbb8] font-semibold"
+            >
               Create Account
             </Button>
           </form>
 
           <p className="text-center text-sm text-gray-500 mt-4">
             Already have an account?{' '}
-            <Link href="/login" className="text-primary-700 font-medium hover:text-primary-900 transition-colors">
+            <Link href="/login" className="text-[#E1E0CC] font-medium hover:text-white transition-colors">
               Sign in
             </Link>
           </p>

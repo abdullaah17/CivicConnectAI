@@ -89,19 +89,24 @@ export default function LoginPage() {
             />
 
             <div className="flex justify-end">
-              <Link href="/forgot-password" className="text-sm text-primary-700 hover:text-primary-900 transition-colors">
+              <Link href="/forgot-password" className="text-sm text-[#E1E0CC]/70 hover:text-[#E1E0CC] transition-colors">
                 Forgot password?
               </Link>
             </div>
 
-            <Button type="submit" size="lg" loading={isSubmitting} className="w-full">
+            <Button
+              type="submit"
+              size="lg"
+              loading={isSubmitting}
+              className="w-full !bg-[#E1E0CC] !text-black hover:!bg-[#cccbb8] font-semibold"
+            >
               Sign In
             </Button>
           </form>
 
           <p className="text-center text-sm text-gray-500 mt-4">
             Don&apos;t have an account?{' '}
-            <Link href="/register" className="text-primary-700 font-medium hover:text-primary-900 transition-colors">
+            <Link href="/register" className="text-[#E1E0CC] font-medium hover:text-white transition-colors">
               Create one
             </Link>
           </p>
