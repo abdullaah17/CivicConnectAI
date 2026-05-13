@@ -17,8 +17,9 @@ interface AppShellProps {
 
 export const AppShell = ({ children, role }: AppShellProps) => {
   const { user } = useAuthStore()
-  const { sidebarOpen, setSidebarOpen, emergencyBanner } = useUIStore()
+  const { sidebarOpen, setSidebarOpen, emergencyBanner, theme } = useUIStore()
   const effectiveRole = role || user?.role || 'resident'
+  const isDark = theme === 'dark'
 
   // Close sidebar on resize to desktop
   useEffect(() => {
@@ -41,18 +42,35 @@ export const AppShell = ({ children, role }: AppShellProps) => {
         <EmergencyBanner announcement={emergencyBanner.announcement} />
       )}
 
+      {/*
+        Dark mode solid surface — sits above the video (-z-10) but below UI (z-0).
+        Gives dashboard pages a proper dark background instead of the video showing through.
+      */}
+      {isDark && (
+        <div
+          className="fixed inset-0 -z-[5] transition-opacity duration-500"
+          style={{ background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)' }}
+          aria-hidden="true"
+        />
+      )}
+
       <Navbar />
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Desktop sidebar — glass surface */}
+        {/* Desktop sidebar */}
         <aside
-          className="hidden lg:flex flex-col w-60 flex-shrink-0 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto glass border-r border-white/20"
+          className={clsx(
+            'hidden lg:flex flex-col w-60 flex-shrink-0 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto border-r',
+            isDark
+              ? 'bg-slate-900/95 border-white/10'
+              : 'glass border-white/20'
+          )}
           aria-label="Sidebar navigation"
         >
           <Sidebar role={effectiveRole as UserRole} />
         </aside>
 
-        {/* Mobile sidebar drawer — glass surface */}
+        {/* Mobile sidebar drawer */}
         {sidebarOpen && (
           <>
             <div
@@ -61,7 +79,10 @@ export const AppShell = ({ children, role }: AppShellProps) => {
               aria-hidden="true"
             />
             <aside
-              className="fixed left-0 top-0 bottom-0 z-40 w-72 glass shadow-xl lg:hidden flex flex-col pt-16 overflow-y-auto"
+              className={clsx(
+                'fixed left-0 top-0 bottom-0 z-40 w-72 shadow-xl lg:hidden flex flex-col pt-16 overflow-y-auto',
+                isDark ? 'bg-slate-900/98 border-r border-white/10' : 'glass'
+              )}
               aria-label="Mobile navigation"
             >
               <Sidebar role={effectiveRole as UserRole} />
@@ -84,7 +105,7 @@ export const AppShell = ({ children, role }: AppShellProps) => {
         </main>
       </div>
 
-      {/* Mobile bottom nav — hidden on lg+ (sidebar takes over) */}
+      {/* Mobile bottom nav */}
       <BottomNavBar role={effectiveRole as UserRole} />
     </div>
   )

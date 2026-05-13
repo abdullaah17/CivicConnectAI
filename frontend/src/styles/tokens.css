@@ -2,6 +2,7 @@
 @import url('https://rsms.me/inter/inter.css');
 
 :root {
+  --color-scheme: light;
   /* Brand — Civic Blue */
   --color-primary-900: #0F2447;
   --color-primary-700: #1B3A6B;
@@ -65,4 +66,53 @@
   --radius-md:   8px;
   --radius-lg:   12px;
   --radius-full: 9999px;
+
+  /* Surface / background tokens (light) */
+  --bg-page:       #F8FAFC;
+  --bg-card:       rgba(255,255,255,0.88);
+  --bg-sidebar:    rgba(255,255,255,0.82);
+  --bg-navbar:     rgba(255,255,255,0.82);
+  --text-primary:  #111827;
+  --text-secondary:#6B7280;
+  --border-subtle: rgba(255,255,255,0.20);
+}
+
+/* ── Dark mode ─────────────────────────────────────────────────────────────── */
+[data-theme='dark'] {
+  --color-scheme: dark;
+
+  /* Brand stays the same */
+  --color-primary-900: #0F2447;
+  --color-primary-700: #3B82F6;
+  --color-primary-500: #60A5FA;
+  --color-primary-100: #1E3A5F;
+  --color-primary-50:  #172B45;
+
+  /* Semantic */
+  --color-success:     #22C55E;
+  --color-success-bg:  #14532D;
+  --color-warning:     #FBBF24;
+  --color-warning-bg:  #451A03;
+  --color-danger:      #F87171;
+  --color-danger-bg:   #450A0A;
+  --color-info:        #38BDF8;
+  --color-info-bg:     #0C2A3E;
+
+  /* Neutral */
+  --color-gray-900:    #F9FAFB;
+  --color-gray-700:    #D1D5DB;
+  --color-gray-500:    #9CA3AF;
+  --color-gray-300:    #374151;
+  --color-gray-100:    #1F2937;
+  --color-surface:     #111827;
+  --color-white:       #1F2937;
+
+  /* Surface / background tokens (dark) */
+  --bg-page:       #0F172A;
+  --bg-card:       rgba(30,41,59,0.90);
+  --bg-sidebar:    rgba(15,23,42,0.92);
+  --bg-navbar:     rgba(15,23,42,0.92);
+  --text-primary:  #F1F5F9;
+  --text-secondary:#94A3B8;
+  --border-subtle: rgba(255,255,255,0.08);
 }

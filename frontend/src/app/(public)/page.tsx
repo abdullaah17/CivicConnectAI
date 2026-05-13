@@ -2,8 +2,9 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowRight, Ticket, FileText, Megaphone, Shield } from 'lucide-react'
+import { ArrowRight, Ticket, FileText, Megaphone, Shield, Sun, Moon } from 'lucide-react'
 import { WordsPullUp } from '@/components/common/WordsPullUp'
+import { useUIStore } from '@/store/uiStore'
 
 const navItems = ['Our Story', 'Services', 'Permits', 'Events', 'Contact']
 
@@ -15,6 +16,8 @@ const features = [
 ]
 
 export default function LandingPage() {
+  const { theme, toggleTheme } = useUIStore()
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'transparent' }}>
 
@@ -33,6 +36,18 @@ export default function LandingPage() {
               {item}
             </a>
           ))}
+          {/* Dark mode toggle */}
+          <button
+            onClick={toggleTheme}
+            className="p-1 rounded transition-colors hover:bg-white/10"
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            style={{ color: 'rgba(225, 224, 204, 0.8)' }}
+          >
+            {theme === 'dark'
+              ? <Sun className="w-4 h-4" aria-hidden="true" />
+              : <Moon className="w-4 h-4" aria-hidden="true" />
+            }
+          </button>
         </div>
       </nav>
 

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Bell, Menu, LogOut, User, ChevronDown } from 'lucide-react'
+import { Bell, Menu, LogOut, User, ChevronDown, Sun, Moon } from 'lucide-react'
 import { clsx } from 'clsx'
 import { useAuthStore } from '@/store/authStore'
 import { useNotificationStore } from '@/store/notificationStore'
@@ -15,7 +15,7 @@ export const Navbar = () => {
   const router = useRouter()
   const { user, logout } = useAuthStore()
   const { unreadCount } = useNotificationStore()
-  const { toggleSidebar } = useUIStore()
+  const { toggleSidebar, theme, toggleTheme } = useUIStore()
   const [notifOpen, setNotifOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
@@ -43,7 +43,12 @@ export const Navbar = () => {
   }
 
   return (
-    <header className="sticky top-0 z-40 h-16 glass border-b border-white/20 shadow-sm">
+    <header className={clsx(
+      'sticky top-0 z-40 h-16 border-b shadow-sm transition-colors duration-300',
+      theme === 'dark'
+        ? 'bg-slate-900/95 border-white/10'
+        : 'glass border-white/20'
+    )}>
       <div className="flex items-center justify-between h-full px-4 md:px-6">
         {/* Left: hamburger + logo */}
         <div className="flex items-center gap-3">
@@ -64,8 +69,19 @@ export const Navbar = () => {
           </Link>
         </div>
 
-        {/* Right: notifications + user */}
+        {/* Right: theme toggle + notifications + user */}
         <div className="flex items-center gap-2">
+          {/* Dark mode toggle */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded text-gray-600 hover:bg-gray-100 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+            aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          >
+            {theme === 'dark'
+              ? <Sun className="w-5 h-5" aria-hidden="true" />
+              : <Moon className="w-5 h-5" aria-hidden="true" />
+            }
+          </button>
           {/* Notification bell */}
           <div className="relative">
             <button

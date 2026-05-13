@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import type { Announcement } from '@/types/announcement'
 
 interface UIState {
@@ -13,24 +14,51 @@ interface UIState {
   toggleSidebar: () => void
   setSidebarOpen: (open: boolean) => void
   toggleTheme: () => void
+  setTheme: (theme: 'light' | 'dark') => void
 }
 
-export const useUIStore = create<UIState>((set) => ({
-  emergencyBanner: { visible: false, announcement: null },
-  sidebarOpen: false,
-  theme: 'light',
+const applyTheme = (theme: 'light' | 'dark') => {
+  if (typeof document !== 'undefined') {
+    document.documentElement.setAttribute('data-theme', theme)
+  }
+}
 
-  showEmergencyBanner: (announcement) =>
-    set({ emergencyBanner: { visible: true, announcement } }),
+export const useUIStore = create<UIState>()(
+  persist(
+    (set) => ({
+      emergencyBanner: { visible: false, announcement: null },
+      sidebarOpen: false,
+      theme: 'light',
 
-  dismissEmergencyBanner: () =>
-    set({ emergencyBanner: { visible: false, announcement: null } }),
+      showEmergencyBanner: (announcement) =>
+        set({ emergencyBanner: { visible: true, announcement } }),
 
-  toggleSidebar: () =>
-    set((state) => ({ sidebarOpen: !state.sidebarOpen })),
+      dismissEmergencyBanner: () =>
+        set({ emergencyBanner: { visible: false, announcement: null } }),
 
-  setSidebarOpen: (open) => set({ sidebarOpen: open }),
+      toggleSidebar: () =>
+        set((state) => ({ sidebarOpen: !state.sidebarOpen })),
 
-  toggleTheme: () =>
-    set((state) => ({ theme: state.theme === 'light' ? 'dark' : 'light' })),
-}))
+      setSidebarOpen: (open) => set({ sidebarOpen: open }),
+
+      toggleTheme: () =>
+        set((state) => {
+          const next = state.theme === 'light' ? 'dark' : 'light'
+          applyTheme(next)
+          return { theme: next }
+        }),
+
+      setTheme: (theme) => {
+        applyTheme(theme)
+        set({ theme })
+      },
+    }),
+    {
+      name: 'civic-ui',
+      partialize: (state) => ({ theme: state.theme }),
+      onRehydrateStorage: () => (state) => {
+        if (state?.theme) applyTheme(state.theme)
+      },
+    }
+  )
+)

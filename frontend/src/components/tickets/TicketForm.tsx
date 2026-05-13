@@ -9,6 +9,8 @@ import { clsx } from 'clsx'
 import { Button } from '@/components/common/Button'
 import { Input, Textarea, Select } from '@/components/common/Input'
 import { ticketSchema, type TicketFormData } from '@/utils/validators'
+import { AISuggest } from '@/components/tickets/AISuggest'
+import { LocationPicker } from '@/components/common/LocationPicker'
 import type { TicketPriority } from '@/types/ticket'
 
 // Department → categories mapping
@@ -164,6 +166,15 @@ export const TicketForm = ({ onSubmit, isSubmitting }: TicketFormProps) => {
         {...register('description')}
       />
 
+      {/* AI Category Suggestion */}
+      <AISuggest
+        description={watch('description') || ''}
+        onAccept={(departmentId, category) => {
+          setValue('department_id', departmentId, { shouldValidate: true })
+          setValue('category', category, { shouldValidate: true })
+        }}
+      />
+
       {/* Category */}
       <Select
         label="Category"
@@ -184,6 +195,12 @@ export const TicketForm = ({ onSubmit, isSubmitting }: TicketFormProps) => {
         required
         error={errors.location?.message}
         {...register('location')}
+      />
+
+      {/* Map pin (optional enhancement) */}
+      <LocationPicker
+        value={watch('location')}
+        onChange={(addr) => setValue('location', addr, { shouldValidate: true })}
       />
 
       {/* Priority */}

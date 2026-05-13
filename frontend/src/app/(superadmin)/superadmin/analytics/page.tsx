@@ -2,16 +2,18 @@
 
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Download } from 'lucide-react'
+import { Download, FileText } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { KPICard } from '@/components/analytics/KPICard'
 import { TicketStatusDonutChart } from '@/components/analytics/TicketStatusDonutChart'
 import { ResolutionTimeLineChart } from '@/components/analytics/ResolutionTimeLineChart'
 import { TopIssuesTable } from '@/components/analytics/TopIssuesTable'
+import { ComplaintHeatmap } from '@/components/analytics/ComplaintHeatmap'
 import { Button } from '@/components/common/Button'
 import { SkeletonChart, SkeletonKPICard } from '@/components/common/SkeletonLoader'
 import api from '@/lib/api'
 import toast from 'react-hot-toast'
+import { exportAnalyticsPDF } from '@/utils/exportPDF'
 
 const DATE_RANGES = [
   { value: '7', label: 'Last 7 days' },
@@ -21,6 +23,7 @@ const DATE_RANGES = [
 
 export default function SuperAdminAnalyticsPage() {
   const [dateRange, setDateRange] = useState('30')
+  const [pdfExporting, setPdfExporting] = useState(false)
   const dateFrom = new Date(Date.now() - parseInt(dateRange) * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
   const { data: analytics, isLoading } = useQuery({
@@ -35,6 +38,14 @@ export default function SuperAdminAnalyticsPage() {
     queryKey: ['analytics', 'top-issues', 'system', { dateRange }],
     queryFn: async () => {
       const { data } = await api.get('/analytics/top-issues', { params: { date_from: dateFrom } })
+      return data.data
+    },
+  })
+
+  const { data: heatmapData } = useQuery({
+    queryKey: ['analytics', 'heatmap', 'system', { dateRange }],
+    queryFn: async () => {
+      const { data } = await api.get('/analytics/heatmap', { params: { date_from: dateFrom } })
       return data.data
     },
   })
@@ -56,6 +67,18 @@ export default function SuperAdminAnalyticsPage() {
     }
   }
 
+  const handleExportPDF = async () => {
+    setPdfExporting(true)
+    try {
+      await exportAnalyticsPDF('superadmin-analytics-dashboard', `system-analytics-${dateRange}days.pdf`)
+      toast.success('PDF exported successfully.')
+    } catch {
+      toast.error('PDF export failed.')
+    } finally {
+      setPdfExporting(false)
+    }
+  }
+
   return (
     <div>
       <PageHeader
@@ -63,9 +86,14 @@ export default function SuperAdminAnalyticsPage() {
         subtitle="City-wide performance metrics across all departments."
         breadcrumbs={[{ label: 'Overview', href: '/superadmin/dashboard' }, { label: 'Analytics' }]}
         actions={
-          <Button variant="outline" size="sm" onClick={handleExport} leftIcon={<Download className="w-4 h-4" />}>
-            Export CSV
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={handleExport} leftIcon={<Download className="w-4 h-4" />}>
+              CSV
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportPDF} loading={pdfExporting} leftIcon={<FileText className="w-4 h-4" />}>
+              PDF
+            </Button>
+          </div>
         }
       />
 
@@ -83,29 +111,37 @@ export default function SuperAdminAnalyticsPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {isLoading ? (
-          Array.from({ length: 4 }).map((_, i) => <SkeletonKPICard key={i} />)
-        ) : (
-          <>
-            <KPICard label="Total Tickets" value={analytics?.total ?? 0} color="blue" />
-            <KPICard label="Resolved" value={analytics?.resolved ?? 0} color="green" />
-            <KPICard label="Avg Resolution" value={analytics?.avg_resolution_hours ?? 0} suffix="h" color="purple" />
-            <KPICard label="SLA Breach Rate" value={`${analytics?.sla_breach_rate ?? 0}%`} color="red" />
-          </>
-        )}
-      </div>
+      <div id="superadmin-analytics-dashboard" className="space-y-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {isLoading ? (
+            Array.from({ length: 4 }).map((_, i) => <SkeletonKPICard key={i} />)
+          ) : (
+            <>
+              <KPICard label="Total Tickets" value={analytics?.total ?? 0} color="blue" />
+              <KPICard label="Resolved" value={analytics?.resolved ?? 0} color="green" />
+              <KPICard label="Avg Resolution" value={analytics?.avg_resolution_hours ?? 0} suffix="h" color="purple" />
+              <KPICard label="SLA Breach Rate" value={`${analytics?.sla_breach_rate ?? 0}%`} color="red" />
+            </>
+          )}
+        </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {isLoading ? <><SkeletonChart /><SkeletonChart /></> : (
-          <>
-            <TicketStatusDonutChart data={analytics?.by_status ?? []} />
-            <ResolutionTimeLineChart data={analytics?.resolution_trend ?? []} />
-          </>
-        )}
-      </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {isLoading ? <><SkeletonChart /><SkeletonChart /></> : (
+            <>
+              <TicketStatusDonutChart data={analytics?.by_status ?? []} />
+              <ResolutionTimeLineChart data={analytics?.resolution_trend ?? []} />
+            </>
+          )}
+        </div>
 
-      {issuesLoading ? <SkeletonChart /> : <TopIssuesTable data={topIssues ?? []} />}
+        {/* City-wide heatmap */}
+        <ComplaintHeatmap
+          points={heatmapData ?? []}
+          title="City-Wide Complaint Distribution"
+        />
+
+        {issuesLoading ? <SkeletonChart /> : <TopIssuesTable data={topIssues ?? []} />}
+      </div>
     </div>
   )
 }

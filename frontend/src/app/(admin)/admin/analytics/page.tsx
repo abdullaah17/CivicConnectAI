@@ -1,18 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Download } from 'lucide-react'
+import { Download, FileText } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { KPICard } from '@/components/analytics/KPICard'
 import { TicketStatusDonutChart } from '@/components/analytics/TicketStatusDonutChart'
 import { ResolutionTimeLineChart } from '@/components/analytics/ResolutionTimeLineChart'
 import { TopIssuesTable } from '@/components/analytics/TopIssuesTable'
+import { ComplaintHeatmap } from '@/components/analytics/ComplaintHeatmap'
 import { Button } from '@/components/common/Button'
 import { SkeletonChart, SkeletonKPICard } from '@/components/common/SkeletonLoader'
 import { useAuthStore } from '@/store/authStore'
 import api from '@/lib/api'
 import toast from 'react-hot-toast'
+import { exportAnalyticsPDF } from '@/utils/exportPDF'
 
 const DATE_RANGES = [
   { value: '7', label: 'Last 7 days' },
@@ -24,6 +26,8 @@ export default function AdminAnalyticsPage() {
   const { user } = useAuthStore()
   const deptId = user?.department_id || ''
   const [dateRange, setDateRange] = useState('30')
+  const [pdfExporting, setPdfExporting] = useState(false)
+  const dashboardRef = useRef<HTMLDivElement>(null)
 
   const dateFrom = new Date(Date.now() - parseInt(dateRange) * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
 
@@ -49,6 +53,17 @@ export default function AdminAnalyticsPage() {
     enabled: !!deptId,
   })
 
+  const { data: heatmapData } = useQuery({
+    queryKey: ['analytics', 'heatmap', { deptId, dateRange }],
+    queryFn: async () => {
+      const { data } = await api.get('/analytics/heatmap', {
+        params: { dept_id: deptId, date_from: dateFrom },
+      })
+      return data.data
+    },
+    enabled: !!deptId,
+  })
+
   const handleExportCSV = async () => {
     try {
       const response = await api.get('/analytics/export-csv', {
@@ -66,6 +81,18 @@ export default function AdminAnalyticsPage() {
     }
   }
 
+  const handleExportPDF = async () => {
+    setPdfExporting(true)
+    try {
+      await exportAnalyticsPDF('analytics-dashboard', `analytics-${dateRange}days.pdf`)
+      toast.success('PDF exported successfully.')
+    } catch {
+      toast.error('PDF export failed. Please try again.')
+    } finally {
+      setPdfExporting(false)
+    }
+  }
+
   return (
     <div>
       <PageHeader
@@ -73,9 +100,14 @@ export default function AdminAnalyticsPage() {
         subtitle="Department performance metrics and trends."
         breadcrumbs={[{ label: 'Dashboard', href: '/admin/dashboard' }, { label: 'Analytics' }]}
         actions={
-          <Button variant="outline" size="sm" onClick={handleExportCSV} leftIcon={<Download className="w-4 h-4" />}>
-            Export CSV
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={handleExportCSV} leftIcon={<Download className="w-4 h-4" />}>
+              CSV
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleExportPDF} loading={pdfExporting} leftIcon={<FileText className="w-4 h-4" />}>
+              PDF
+            </Button>
+          </div>
         }
       />
 
@@ -96,38 +128,47 @@ export default function AdminAnalyticsPage() {
         ))}
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {ticketsLoading ? (
-          Array.from({ length: 4 }).map((_, i) => <SkeletonKPICard key={i} />)
+      {/* Capturable dashboard area */}
+      <div id="analytics-dashboard" ref={dashboardRef} className="space-y-6">
+        {/* KPIs */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {ticketsLoading ? (
+            Array.from({ length: 4 }).map((_, i) => <SkeletonKPICard key={i} />)
+          ) : (
+            <>
+              <KPICard label="Total Tickets" value={ticketAnalytics?.total ?? 0} color="blue" />
+              <KPICard label="Resolved" value={ticketAnalytics?.resolved ?? 0} color="green" />
+              <KPICard label="Avg Resolution" value={ticketAnalytics?.avg_resolution_hours ?? 0} suffix="h" color="purple" />
+              <KPICard label="SLA Breach Rate" value={`${ticketAnalytics?.sla_breach_rate ?? 0}%`} color="red" />
+            </>
+          )}
+        </div>
+
+        {/* Charts */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {ticketsLoading ? (
+            <><SkeletonChart /><SkeletonChart /></>
+          ) : (
+            <>
+              <TicketStatusDonutChart data={ticketAnalytics?.by_status ?? []} />
+              <ResolutionTimeLineChart data={ticketAnalytics?.resolution_trend ?? []} />
+            </>
+          )}
+        </div>
+
+        {/* Heatmap */}
+        <ComplaintHeatmap
+          points={heatmapData ?? []}
+          title="Geographic Complaint Distribution"
+        />
+
+        {/* Top issues */}
+        {issuesLoading ? (
+          <SkeletonChart />
         ) : (
-          <>
-            <KPICard label="Total Tickets" value={ticketAnalytics?.total ?? 0} color="blue" />
-            <KPICard label="Resolved" value={ticketAnalytics?.resolved ?? 0} color="green" />
-            <KPICard label="Avg Resolution" value={ticketAnalytics?.avg_resolution_hours ?? 0} suffix="h" color="purple" />
-            <KPICard label="SLA Breach Rate" value={`${ticketAnalytics?.sla_breach_rate ?? 0}%`} color="red" />
-          </>
+          <TopIssuesTable data={topIssues ?? []} />
         )}
       </div>
-
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {ticketsLoading ? (
-          <><SkeletonChart /><SkeletonChart /></>
-        ) : (
-          <>
-            <TicketStatusDonutChart data={ticketAnalytics?.by_status ?? []} />
-            <ResolutionTimeLineChart data={ticketAnalytics?.resolution_trend ?? []} />
-          </>
-        )}
-      </div>
-
-      {/* Top issues */}
-      {issuesLoading ? (
-        <SkeletonChart />
-      ) : (
-        <TopIssuesTable data={topIssues ?? []} />
-      )}
     </div>
   )
 }
