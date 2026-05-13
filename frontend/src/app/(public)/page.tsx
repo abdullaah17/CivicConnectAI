@@ -37,21 +37,29 @@ export default function LandingPage() {
       </nav>
 
       {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="h-screen w-full relative flex flex-col justify-end">
+      <section className="h-screen w-full relative flex flex-col justify-end overflow-hidden">
         <div className="px-4 pb-2 sm:px-6 md:px-10">
           <div className="grid grid-cols-12 items-end gap-4">
-            {/* Giant wordmark */}
-            <div className="col-span-12 lg:col-span-8">
+
+            {/* Giant wordmark — two lines so each word fills width without overflow */}
+            <div className="col-span-12 lg:col-span-7 overflow-hidden">
               <h1
-                className="font-medium leading-[0.85] tracking-[-0.07em] text-[26vw] sm:text-[24vw] md:text-[22vw] lg:text-[20vw] xl:text-[19vw] 2xl:text-[20vw]"
+                className="font-medium leading-[0.82] tracking-[-0.05em]"
                 style={{ color: '#E1E0CC' }}
               >
-                <WordsPullUp text="CivicConnect" showAsterisk />
+                {/* "Civic" — scales to fill ~half the viewport width */}
+                <span className="block text-[13vw] sm:text-[12vw] md:text-[11vw] lg:text-[10vw] xl:text-[9.5vw]">
+                  <WordsPullUp text="Civic" />
+                </span>
+                {/* "Connect" — slightly smaller so it fits on one line */}
+                <span className="block text-[13vw] sm:text-[12vw] md:text-[11vw] lg:text-[10vw] xl:text-[9.5vw]">
+                  <WordsPullUp text="Connect" showAsterisk />
+                </span>
               </h1>
             </div>
 
             {/* Tagline + CTA */}
-            <div className="col-span-12 flex flex-col gap-5 pb-6 lg:col-span-4 lg:pb-10">
+            <div className="col-span-12 flex flex-col gap-5 pb-6 lg:col-span-5 lg:pb-10">
               <motion.p
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
