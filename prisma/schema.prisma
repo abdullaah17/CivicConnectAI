@@ -1,4 +1,4 @@
-﻿generator client {
+generator client {
   provider = "prisma-client-js"
 }
 
@@ -17,10 +17,10 @@ model Department {
   createdAt                 DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt                 DateTime @updatedAt @map("updated_at") @db.Timestamptz
 
-  users        User[]
-  tickets      Ticket[]
+  users         User[]
+  tickets       Ticket[]
   announcements Announcement[]
-  events       Event[]
+  events        Event[]
 
   @@map("departments")
 }
@@ -95,11 +95,11 @@ model Ticket {
   createdAt            DateTime       @default(now()) @map("created_at") @db.Timestamptz
   updatedAt            DateTime       @updatedAt @map("updated_at") @db.Timestamptz
 
-  department   Department            @relation(fields: [departmentId], references: [id])
-  resident     User                  @relation("ResidentTickets", fields: [residentId], references: [id])
-  assignee     User?                 @relation("AssignedTickets", fields: [assignedTo], references: [id])
-  attachments  TicketAttachment[]
-  comments     TicketComment[]
+  department    Department            @relation(fields: [departmentId], references: [id])
+  resident      User                  @relation("ResidentTickets", fields: [residentId], references: [id])
+  assignee      User?                 @relation("AssignedTickets", fields: [assignedTo], references: [id])
+  attachments   TicketAttachment[]
+  comments      TicketComment[]
   statusHistory TicketStatusHistory[]
 
   @@map("tickets")
@@ -136,13 +136,13 @@ model TicketComment {
 }
 
 model TicketStatusHistory {
-  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  ticketId    String       @map("ticket_id") @db.Uuid
-  fromStatus  TicketStatus? @map("from_status")
-  toStatus    TicketStatus  @map("to_status")
-  changedBy   String        @map("changed_by") @db.Uuid
-  note        String?       @db.Text
-  changedAt   DateTime      @default(now()) @map("changed_at") @db.Timestamptz
+  id         String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ticketId   String        @map("ticket_id") @db.Uuid
+  fromStatus TicketStatus? @map("from_status")
+  toStatus   TicketStatus  @map("to_status")
+  changedBy  String        @map("changed_by") @db.Uuid
+  note       String?       @db.Text
+  changedAt  DateTime      @default(now()) @map("changed_at") @db.Timestamptz
 
   ticket  Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
   changer User   @relation(fields: [changedBy], references: [id])
@@ -166,12 +166,12 @@ model PermitApplication {
   createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz
   updatedAt       DateTime      @updatedAt @map("updated_at") @db.Timestamptz
 
-  applicant       User                @relation("ApplicantPermits", fields: [applicantId], references: [id])
-  reviewer        User?               @relation("ReviewedPermits", fields: [reviewedBy], references: [id])
-  originalApplication PermitApplication? @relation("Resubmissions", fields: [resubmissionOf], references: [id])
-  resubmissions   PermitApplication[] @relation("Resubmissions")
-  documents       PermitDocument[]
-  certificate     PermitCertificate?
+  applicant           User                @relation("ApplicantPermits", fields: [applicantId], references: [id])
+  reviewer            User?               @relation("ReviewedPermits", fields: [reviewedBy], references: [id])
+  originalApplication PermitApplication?  @relation("Resubmissions", fields: [resubmissionOf], references: [id])
+  resubmissions       PermitApplication[] @relation("Resubmissions")
+  documents           PermitDocument[]
+  certificate         PermitCertificate?
 
   @@map("permit_applications")
 }
@@ -207,18 +207,18 @@ model PermitCertificate {
 }
 
 model Announcement {
-  id           String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  authorId     String                @map("author_id") @db.Uuid
-  departmentId String?               @map("department_id") @db.Uuid
-  title        String                @db.VarChar(200)
-  body         String                @db.Text
-  category     String                @db.VarChar(50)
-  priority     AnnouncementPriority  @default(normal)
-  isEmergency  Boolean               @default(false) @map("is_emergency")
-  expiryDate   DateTime?             @map("expiry_date") @db.Date
-  isArchived   Boolean               @default(false) @map("is_archived")
-  createdAt    DateTime              @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt    DateTime              @updatedAt @map("updated_at") @db.Timestamptz
+  id           String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  authorId     String               @map("author_id") @db.Uuid
+  departmentId String?              @map("department_id") @db.Uuid
+  title        String               @db.VarChar(200)
+  body         String               @db.Text
+  category     String               @db.VarChar(50)
+  priority     AnnouncementPriority @default(normal)
+  isEmergency  Boolean              @default(false) @map("is_emergency")
+  expiryDate   DateTime?            @map("expiry_date") @db.Date
+  isArchived   Boolean              @default(false) @map("is_archived")
+  createdAt    DateTime             @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime             @updatedAt @map("updated_at") @db.Timestamptz
 
   author     User               @relation(fields: [authorId], references: [id])
   department Department?        @relation(fields: [departmentId], references: [id])
