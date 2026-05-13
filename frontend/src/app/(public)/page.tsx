@@ -55,6 +55,16 @@ export default function LandingPage() {
                 <span className="block text-[13vw] sm:text-[12vw] md:text-[11vw] lg:text-[10vw] xl:text-[9.5vw]">
                   <WordsPullUp text="Connect" />
                 </span>
+                {/* Tagline */}
+                <motion.span
+                  initial={{ y: 12, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.7, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                  className="block text-sm sm:text-base md:text-lg tracking-[0.25em] uppercase mt-3 font-light"
+                  style={{ color: 'rgba(225, 224, 204, 0.6)' }}
+                >
+                  Connectivity with Peace
+                </motion.span>
               </h1>
             </div>
 
