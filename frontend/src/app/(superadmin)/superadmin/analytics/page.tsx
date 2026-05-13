@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Download } from 'lucide-react'
@@ -19,7 +20,36 @@ const COLOR_MAP: Record<string, string> = {
   'In Progress': '#F59E0B', Resolved: '#16A34A', Closed: '#6B7280',
 }
 
-export default function SuperAdminAnalyticsPage() {
+class AnalyticsErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { error: Error | null }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props)
+    this.state = { error: null }
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { error }
+  }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="bg-white rounded-lg p-8 border border-red-200 text-center">
+          <h2 className="text-lg font-bold text-red-600 mb-2">Analytics Error</h2>
+          <p className="text-sm text-gray-600 mb-4">An error occurred loading analytics.</p>
+          <pre className="text-xs text-left bg-red-50 p-4 rounded overflow-auto max-h-48 text-red-800">
+            {this.state.error.message}
+            {'\n'}
+            {this.state.error.stack}
+          </pre>
+        </div>
+      )
+    }
+    return this.props.children
+  }
+}
+
+function AnalyticsContent() {
   const [dateRange, setDateRange] = useState('30')
 
   const dateFrom = new Date(Date.now() - parseInt(dateRange) * 24 * 60 * 60 * 1000)
@@ -154,5 +184,13 @@ export default function SuperAdminAnalyticsPage() {
         </>
       )}
     </div>
+  )
+}
+
+export default function SuperAdminAnalyticsPage() {
+  return (
+    <AnalyticsErrorBoundary>
+      <AnalyticsContent />
+    </AnalyticsErrorBoundary>
   )
 }
