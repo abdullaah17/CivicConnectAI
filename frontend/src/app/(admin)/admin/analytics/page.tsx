@@ -67,7 +67,7 @@ export default function AdminAnalyticsPage() {
     }
   }
 
-  const byStatus: { status: string; count: number }[] = analytics?.by_status ?? []
+  const byStatus: { status: string; count: number }[] = Array.isArray(analytics?.by_status) ? analytics.by_status : []
   const total = byStatus.reduce((s: number, d: { count: number }) => s + d.count, 0)
 
   return (
