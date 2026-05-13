@@ -3,13 +3,13 @@ import { Home, ArrowLeft } from 'lucide-react'
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-surface flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center px-4">
       <div className="text-center max-w-md">
-        <div className="w-16 h-16 bg-primary-50 text-primary-700 rounded-full flex items-center justify-center mx-auto mb-6">
-          <span className="font-display font-bold text-2xl">404</span>
+        <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-full flex items-center justify-center mx-auto mb-6">
+          <span className="font-bold text-2xl text-white">404</span>
         </div>
-        <h1 className="font-display text-2xl font-bold text-gray-900 mb-2">Page not found</h1>
-        <p className="text-gray-500 mb-8">
+        <h1 className="font-display text-2xl font-bold text-white drop-shadow mb-2">Page not found</h1>
+        <p className="text-white/70 mb-8">
           The page you&apos;re looking for doesn&apos;t exist or has been moved.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">

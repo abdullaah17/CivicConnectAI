@@ -2,10 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { CheckCircle2, Circle, ChevronRight, Save } from 'lucide-react'
+import { CheckCircle2, ChevronRight, Save } from 'lucide-react'
 import { clsx } from 'clsx'
 import { Button } from '@/components/common/Button'
-import type { PermitType } from '@/types/permit'
 
 export interface WizardStep {
   id: number
@@ -15,7 +14,6 @@ export interface WizardStep {
 }
 
 interface PermitWizardProps {
-  permitType: PermitType
   steps: WizardStep[]
   onSubmit: () => Promise<void>
   onSaveDraft?: () => Promise<void>
@@ -24,7 +22,6 @@ interface PermitWizardProps {
 }
 
 export const PermitWizard = ({
-  permitType,
   steps,
   onSubmit,
   onSaveDraft,

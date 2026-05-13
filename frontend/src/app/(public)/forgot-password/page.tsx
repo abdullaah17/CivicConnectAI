@@ -62,16 +62,16 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-surface flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="w-12 h-12 bg-primary-700 rounded-lg flex items-center justify-center mx-auto mb-3">
             <span className="text-white font-bold font-display text-lg">CC</span>
           </div>
-          <h1 className="font-display text-2xl font-bold text-gray-900">Reset your password</h1>
+          <h1 className="font-display text-2xl font-bold text-white drop-shadow">Reset your password</h1>
         </div>
 
-        <div className="bg-white rounded-lg shadow-card border border-gray-100 p-6">
+        <div className="card-glass p-6">
           {step === 'email' && (
             <form onSubmit={emailForm.handleSubmit(handleEmailSubmit)} noValidate className="space-y-4">
               <p className="text-sm text-gray-600">Enter your email and we&apos;ll send you a reset code.</p>

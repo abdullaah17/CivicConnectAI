@@ -30,7 +30,7 @@ export const AppShell = ({ children, role }: AppShellProps) => {
   }, [setSidebarOpen])
 
   return (
-    <div className="min-h-screen bg-surface flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'transparent' }}>
       {/* Skip navigation */}
       <a href="#main-content" className="skip-nav">
         Skip to main content
@@ -44,15 +44,15 @@ export const AppShell = ({ children, role }: AppShellProps) => {
       <Navbar />
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Desktop sidebar */}
+        {/* Desktop sidebar — glass surface */}
         <aside
-          className="hidden lg:flex flex-col w-60 bg-white border-r border-gray-200 flex-shrink-0 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto"
+          className="hidden lg:flex flex-col w-60 flex-shrink-0 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto glass border-r border-white/20"
           aria-label="Sidebar navigation"
         >
           <Sidebar role={effectiveRole as UserRole} />
         </aside>
 
-        {/* Mobile sidebar drawer */}
+        {/* Mobile sidebar drawer — glass surface */}
         {sidebarOpen && (
           <>
             <div
@@ -61,7 +61,7 @@ export const AppShell = ({ children, role }: AppShellProps) => {
               aria-hidden="true"
             />
             <aside
-              className="fixed left-0 top-0 bottom-0 z-40 w-72 bg-white shadow-xl lg:hidden flex flex-col pt-16 overflow-y-auto"
+              className="fixed left-0 top-0 bottom-0 z-40 w-72 glass shadow-xl lg:hidden flex flex-col pt-16 overflow-y-auto"
               aria-label="Mobile navigation"
             >
               <Sidebar role={effectiveRole as UserRole} />
@@ -75,7 +75,6 @@ export const AppShell = ({ children, role }: AppShellProps) => {
           className={clsx(
             'flex-1 overflow-y-auto',
             'p-4 md:p-6 lg:p-8',
-            // Extra bottom padding on mobile so content clears the bottom nav bar
             'pb-24 lg:pb-8',
             'min-w-0'
           )}
