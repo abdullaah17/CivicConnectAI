@@ -5,13 +5,15 @@
 
 @layer base {
   html {
-    font-family: var(--font-body);
+    font-family: 'Inter', sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11'; /* Inter optical features */
     background-color: var(--color-surface);
     color: var(--color-gray-900);
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-display);
+    font-family: 'Inter', sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
   /* Focus ring */

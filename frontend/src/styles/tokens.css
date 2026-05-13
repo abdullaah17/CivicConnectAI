@@ -1,5 +1,5 @@
 /* CivicConnect Design Tokens */
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@import url('https://rsms.me/inter/inter.css');
 
 :root {
   /* Brand — Civic Blue */
@@ -41,8 +41,8 @@
   --status-closed:     #6B7280;
 
   /* Typography */
-  --font-display:  'DM Sans', sans-serif;
-  --font-body:     'IBM Plex Sans', sans-serif;
+  --font-display:  'Inter', sans-serif;
+  --font-body:     'Inter', sans-serif;
   --font-mono:     'IBM Plex Mono', monospace;
 
   --text-xs:    0.75rem;

@@ -47,8 +47,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        display: ['DM Sans', 'sans-serif'],
-        body:    ['IBM Plex Sans', 'sans-serif'],
+        display: ['Inter', 'sans-serif'],
+        body:    ['Inter', 'sans-serif'],
         mono:    ['IBM Plex Mono', 'monospace'],
       },
       borderRadius: {
