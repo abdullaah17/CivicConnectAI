@@ -21,7 +21,16 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: async (credentials: { identifier: string; password: string }) => {
       const { data } = await api.post('/auth/login', credentials)
-      return data.data as { accessToken: string; user: User; requires2FA?: boolean }
+      const raw = data.data
+      // Normalize snake_case → camelCase from backend
+      return {
+        accessToken: raw.access_token ?? raw.accessToken,
+        requires2FA: raw.requires2FA ?? raw.requires_2fa ?? false,
+        user: {
+          ...raw.user,
+          name: raw.user?.full_name ?? raw.user?.name,
+        },
+      } as { accessToken: string; user: User; requires2FA?: boolean }
     },
     onSuccess: (result) => {
       if (result.requires2FA) return // caller handles 2FA modal
@@ -62,7 +71,11 @@ export const useVerifyOTP = () => {
   return useMutation({
     mutationFn: async (payload: { email: string; otp: string }) => {
       const { data } = await api.post('/auth/verify-otp', payload)
-      return data.data as { accessToken: string; user: User }
+      const raw = data.data
+      return {
+        accessToken: raw.access_token ?? raw.accessToken,
+        user: { ...raw.user, name: raw.user?.full_name ?? raw.user?.name },
+      } as { accessToken: string; user: User }
     },
     onSuccess: (result) => {
       setAuth(result.user, result.accessToken)

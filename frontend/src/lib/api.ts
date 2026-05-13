@@ -60,7 +60,7 @@ api.interceptors.response.use(
 
       try {
         const { data } = await api.post('/auth/refresh')
-        const newToken = data.data.accessToken
+        const newToken = data.data.access_token ?? data.data.accessToken
         useAuthStore.getState().setAuth(useAuthStore.getState().user!, newToken)
         processQueue(null, newToken)
         originalRequest!.headers!['Authorization'] = `Bearer ${newToken}`
