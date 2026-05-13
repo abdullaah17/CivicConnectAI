@@ -1,0 +1,361 @@
+﻿generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Department {
+  id                        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name                      String   @db.VarChar(100)
+  code                      String   @unique @db.Char(3)
+  description               String?  @db.Text
+  slaConfig                 Json     @default("{\"low\": 72, \"medium\": 48, \"high\": 24, \"emergency\": 4}") @map("sla_config")
+  escalationThresholdHours  Int      @default(2) @map("escalation_threshold_hours")
+  createdAt                 DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt                 DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  users        User[]
+  tickets      Ticket[]
+  announcements Announcement[]
+  events       Event[]
+
+  @@map("departments")
+}
+
+model User {
+  id                  String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  fullName            String    @map("full_name") @db.VarChar(150)
+  email               String    @unique @db.VarChar(255)
+  passwordHash        String    @map("password_hash") @db.VarChar(255)
+  role                UserRole  @default(resident)
+  departmentId        String?   @map("department_id") @db.Uuid
+  profilePhotoUrl     String?   @map("profile_photo_url") @db.Text
+  otpHash             String?   @map("otp_hash") @db.VarChar(255)
+  otpExpiresAt        DateTime? @map("otp_expires_at") @db.Timestamptz
+  otpAttempts         Int       @default(0) @map("otp_attempts") @db.SmallInt
+  otpLockedUntil      DateTime? @map("otp_locked_until") @db.Timestamptz
+  otpSentAt           DateTime? @map("otp_sent_at") @db.Timestamptz
+  otpVerified         Boolean   @default(false) @map("otp_verified")
+  totpSecret          String?   @map("totp_secret") @db.Text
+  totpEnabled         Boolean   @default(false) @map("totp_enabled")
+  refreshTokenHash    String?   @map("refresh_token_hash") @db.VarChar(255)
+  refreshTokenExpires DateTime? @map("refresh_token_expires") @db.Timestamptz
+  isActive            Boolean   @default(true) @map("is_active")
+  lastLoginAt         DateTime? @map("last_login_at") @db.Timestamptz
+  lastLoginIp         String?   @map("last_login_ip") @db.VarChar(45)
+  createdAt           DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt           DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  department           Department?          @relation(fields: [departmentId], references: [id], onDelete: SetNull)
+  submittedTickets     Ticket[]             @relation("ResidentTickets")
+  assignedTickets      Ticket[]             @relation("AssignedTickets")
+  ticketComments       TicketComment[]
+  ticketStatusHistory  TicketStatusHistory[]
+  permitApplications   PermitApplication[]  @relation("ApplicantPermits")
+  reviewedPermits      PermitApplication[]  @relation("ReviewedPermits")
+  announcements        Announcement[]
+  events               Event[]
+  eventRegistrations   EventRegistration[]
+  notifications        Notification[]
+  auditLogs            AuditLog[]
+  announcementReads    AnnouncementRead[]
+
+  @@map("users")
+}
+
+model TicketSequence {
+  departmentCode String @id @map("department_code") @db.Char(3)
+  year           Int    @db.SmallInt
+  lastSeq        Int    @default(0) @map("last_seq")
+
+  @@map("ticket_sequences")
+}
+
+model Ticket {
+  id                   String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ticketNumber         String         @unique @map("ticket_number") @db.VarChar(20)
+  title                String         @db.VarChar(150)
+  description          String         @db.Text
+  category             String         @db.VarChar(100)
+  priority             TicketPriority @default(medium)
+  status               TicketStatus   @default(submitted)
+  location             String?        @db.Text
+  locationLat          Decimal?       @map("location_lat") @db.Decimal(9, 6)
+  locationLng          Decimal?       @map("location_lng") @db.Decimal(9, 6)
+  departmentId         String         @map("department_id") @db.Uuid
+  residentId           String         @map("resident_id") @db.Uuid
+  assignedTo           String?        @map("assigned_to") @db.Uuid
+  slaDeadline          DateTime       @map("sla_deadline") @db.Timestamptz
+  escalationSent       Boolean        @default(false) @map("escalation_sent")
+  aiSuggestedDept      String?        @map("ai_suggested_dept") @db.VarChar(100)
+  aiSuggestedCategory  String?        @map("ai_suggested_category") @db.VarChar(100)
+  createdAt            DateTime       @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt            DateTime       @updatedAt @map("updated_at") @db.Timestamptz
+
+  department   Department            @relation(fields: [departmentId], references: [id])
+  resident     User                  @relation("ResidentTickets", fields: [residentId], references: [id])
+  assignee     User?                 @relation("AssignedTickets", fields: [assignedTo], references: [id])
+  attachments  TicketAttachment[]
+  comments     TicketComment[]
+  statusHistory TicketStatusHistory[]
+
+  @@map("tickets")
+}
+
+model TicketAttachment {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ticketId      String   @map("ticket_id") @db.Uuid
+  fileUrl       String   @map("file_url") @db.Text
+  fileType      String   @map("file_type") @db.VarChar(100)
+  fileName      String   @map("file_name") @db.VarChar(255)
+  fileSizeBytes Int      @map("file_size_bytes")
+  cloudinaryId  String?  @map("cloudinary_id") @db.VarChar(255)
+  uploadedAt    DateTime @default(now()) @map("uploaded_at") @db.Timestamptz
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@map("ticket_attachments")
+}
+
+model TicketComment {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ticketId   String   @map("ticket_id") @db.Uuid
+  authorId   String   @map("author_id") @db.Uuid
+  body       String   @db.Text
+  isInternal Boolean  @default(false) @map("is_internal")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt  DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author User   @relation(fields: [authorId], references: [id])
+
+  @@map("ticket_comments")
+}
+
+model TicketStatusHistory {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ticketId    String       @map("ticket_id") @db.Uuid
+  fromStatus  TicketStatus? @map("from_status")
+  toStatus    TicketStatus  @map("to_status")
+  changedBy   String        @map("changed_by") @db.Uuid
+  note        String?       @db.Text
+  changedAt   DateTime      @default(now()) @map("changed_at") @db.Timestamptz
+
+  ticket  Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  changer User   @relation(fields: [changedBy], references: [id])
+
+  @@map("ticket_status_history")
+}
+
+model PermitApplication {
+  id              String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  applicantId     String        @map("applicant_id") @db.Uuid
+  permitType      PermitType    @map("permit_type")
+  status          PermitStatus  @default(draft)
+  formData        Json          @default("{}") @map("form_data")
+  feeAmount       Decimal?      @map("fee_amount") @db.Decimal(10, 2)
+  rejectionReason String?       @map("rejection_reason") @db.Text
+  resubmissionOf  String?       @map("resubmission_of") @db.Uuid
+  draftSavedAt    DateTime?     @map("draft_saved_at") @db.Timestamptz
+  submittedAt     DateTime?     @map("submitted_at") @db.Timestamptz
+  reviewedBy      String?       @map("reviewed_by") @db.Uuid
+  reviewedAt      DateTime?     @map("reviewed_at") @db.Timestamptz
+  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+
+  applicant       User                @relation("ApplicantPermits", fields: [applicantId], references: [id])
+  reviewer        User?               @relation("ReviewedPermits", fields: [reviewedBy], references: [id])
+  originalApplication PermitApplication? @relation("Resubmissions", fields: [resubmissionOf], references: [id])
+  resubmissions   PermitApplication[] @relation("Resubmissions")
+  documents       PermitDocument[]
+  certificate     PermitCertificate?
+
+  @@map("permit_applications")
+}
+
+model PermitDocument {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  applicationId String   @map("application_id") @db.Uuid
+  fileUrl       String   @map("file_url") @db.Text
+  fileName      String   @map("file_name") @db.VarChar(255)
+  fileType      String   @map("file_type") @db.VarChar(100)
+  fileSizeBytes Int      @map("file_size_bytes")
+  cloudinaryId  String?  @map("cloudinary_id") @db.VarChar(255)
+  isVerified    Boolean  @default(false) @map("is_verified")
+  uploadedAt    DateTime @default(now()) @map("uploaded_at") @db.Timestamptz
+
+  application PermitApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+
+  @@map("permit_documents")
+}
+
+model PermitCertificate {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  applicationId  String   @unique @map("application_id") @db.Uuid
+  permitNumber   String   @unique @map("permit_number") @db.VarChar(30)
+  certificateUrl String   @map("certificate_url") @db.Text
+  qrCodeUrl      String   @map("qr_code_url") @db.Text
+  expiryDate     DateTime @map("expiry_date") @db.Date
+  issuedAt       DateTime @default(now()) @map("issued_at") @db.Timestamptz
+
+  application PermitApplication @relation(fields: [applicationId], references: [id])
+
+  @@map("permit_certificates")
+}
+
+model Announcement {
+  id           String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  authorId     String                @map("author_id") @db.Uuid
+  departmentId String?               @map("department_id") @db.Uuid
+  title        String                @db.VarChar(200)
+  body         String                @db.Text
+  category     String                @db.VarChar(50)
+  priority     AnnouncementPriority  @default(normal)
+  isEmergency  Boolean               @default(false) @map("is_emergency")
+  expiryDate   DateTime?             @map("expiry_date") @db.Date
+  isArchived   Boolean               @default(false) @map("is_archived")
+  createdAt    DateTime              @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime              @updatedAt @map("updated_at") @db.Timestamptz
+
+  author     User               @relation(fields: [authorId], references: [id])
+  department Department?        @relation(fields: [departmentId], references: [id])
+  reads      AnnouncementRead[]
+
+  @@map("announcements")
+}
+
+model AnnouncementRead {
+  announcementId String   @map("announcement_id") @db.Uuid
+  userId         String   @map("user_id") @db.Uuid
+  readAt         DateTime @default(now()) @map("read_at") @db.Timestamptz
+
+  announcement Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([announcementId, userId])
+  @@map("announcement_reads")
+}
+
+model Event {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  createdBy    String   @map("created_by") @db.Uuid
+  departmentId String?  @map("department_id") @db.Uuid
+  title        String   @db.VarChar(200)
+  description  String   @db.Text
+  category     String   @db.VarChar(50)
+  eventDate    DateTime @map("event_date") @db.Timestamptz
+  location     String   @db.Text
+  capacity     Int
+  isCancelled  Boolean  @default(false) @map("is_cancelled")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  creator       User                @relation(fields: [createdBy], references: [id])
+  department    Department?         @relation(fields: [departmentId], references: [id])
+  registrations EventRegistration[]
+
+  @@map("events")
+}
+
+model EventRegistration {
+  eventId      String   @map("event_id") @db.Uuid
+  userId       String   @map("user_id") @db.Uuid
+  registeredAt DateTime @default(now()) @map("registered_at") @db.Timestamptz
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([eventId, userId])
+  @@map("event_registrations")
+}
+
+model Notification {
+  id            String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String           @map("user_id") @db.Uuid
+  type          NotificationType
+  title         String           @db.VarChar(200)
+  message       String           @db.Text
+  isRead        Boolean          @default(false) @map("is_read")
+  referenceId   String?          @map("reference_id") @db.Uuid
+  referenceType String?          @map("reference_type") @db.VarChar(50)
+  createdAt     DateTime         @default(now()) @map("created_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model AuditLog {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  actorId      String?  @map("actor_id") @db.Uuid
+  action       String   @db.VarChar(100)
+  resourceType String?  @map("resource_type") @db.VarChar(50)
+  resourceId   String?  @map("resource_id") @db.Uuid
+  payload      Json?
+  ipAddress    String   @map("ip_address") @db.VarChar(45)
+  userAgent    String?  @map("user_agent") @db.Text
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+}
+
+enum UserRole {
+  resident
+  staff
+  dept_admin
+  super_admin
+}
+
+enum TicketStatus {
+  submitted
+  under_review
+  assigned
+  in_progress
+  resolved
+  closed
+}
+
+enum TicketPriority {
+  low
+  medium
+  high
+  emergency
+}
+
+enum PermitType {
+  construction_permit
+  event_permit
+  business_license_renewal
+}
+
+enum PermitStatus {
+  draft
+  submitted
+  document_verification
+  field_inspection_scheduled
+  approved
+  rejected
+}
+
+enum AnnouncementPriority {
+  normal
+  urgent
+  emergency
+}
+
+enum NotificationType {
+  ticket_status_change
+  ticket_comment
+  ticket_assigned
+  permit_status_change
+  permit_approved
+  permit_rejected
+  announcement_published
+  sla_breach_alert
+  event_registration_confirmed
+}
