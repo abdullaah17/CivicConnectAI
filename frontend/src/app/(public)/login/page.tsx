@@ -37,7 +37,10 @@ export default function LoginPage() {
       }
     } catch (err: unknown) {
       const status = (err as { response?: { status?: number; data?: { error?: { message?: string } } } })?.response?.status
-      if (status === 401) {
+      const message = (err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message
+      if (status === 429) {
+        toast.error(message || 'Too many attempts. Please wait 15 minutes and try again.')
+      } else if (status === 401) {
         setError('password', { message: 'Invalid credentials. Please try again.' })
       } else {
         toast.error('Login failed. Please try again.')
