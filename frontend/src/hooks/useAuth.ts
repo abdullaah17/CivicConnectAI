@@ -54,9 +54,13 @@ export const useRegister = () =>
       profile_photo?: File
     }) => {
       const formData = new FormData()
-      Object.entries(payload).forEach(([k, v]) => {
-        if (v !== undefined) formData.append(k, v as string | Blob)
-      })
+      // Backend expects full_name
+      formData.append('full_name', payload.name)
+      formData.append('email', payload.email)
+      formData.append('password', payload.password)
+      if (payload.profile_photo) {
+        formData.append('profile_photo', payload.profile_photo)
+      }
       const { data } = await api.post('/auth/register', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
