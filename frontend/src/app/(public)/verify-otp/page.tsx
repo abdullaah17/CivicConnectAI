@@ -47,9 +47,6 @@ function OTPForm() {
     <div className="min-h-screen flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-primary-700 rounded-lg flex items-center justify-center mx-auto mb-3">
-            <span className="text-white font-bold font-display text-lg">CC</span>
-          </div>
           <h1 className="font-display text-2xl font-bold text-white drop-shadow">Verify your email</h1>
           <p className="text-white/70 text-sm mt-1">
             We sent a 6-digit code to <strong>{email}</strong>

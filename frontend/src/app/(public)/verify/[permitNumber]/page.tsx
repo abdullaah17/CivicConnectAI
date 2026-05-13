@@ -27,10 +27,7 @@ export default async function PermitVerificationPage({ params }: VerifyPageProps
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-primary-700 rounded-lg flex items-center justify-center mx-auto mb-3">
-            <span className="text-white font-bold text-lg">CC</span>
-          </div>
-          <h1 className="font-display text-xl font-bold text-gray-900">Permit Verification</h1>
+          <h1 className="font-display text-xl font-bold text-white drop-shadow">Permit Verification</h1>
           <p className="text-gray-500 text-sm mt-1">CivicConnect — Official Permit Registry</p>
         </div>
 
