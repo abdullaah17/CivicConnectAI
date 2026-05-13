@@ -10,8 +10,13 @@ import { Button } from '@/components/common/Button'
 import { Input, Textarea, Select } from '@/components/common/Input'
 import { ticketSchema, type TicketFormData } from '@/utils/validators'
 import { AISuggest } from '@/components/tickets/AISuggest'
-import { LocationPicker } from '@/components/common/LocationPicker'
+import dynamic from 'next/dynamic'
 import type { TicketPriority } from '@/types/ticket'
+
+const LocationPicker = dynamic(
+  () => import('@/components/common/LocationPicker').then((m) => m.LocationPicker),
+  { ssr: false, loading: () => <div className="w-full h-56 rounded-lg border border-gray-200 bg-gray-100 animate-pulse" /> }
+)
 
 // Department → categories mapping
 const DEPARTMENTS = [

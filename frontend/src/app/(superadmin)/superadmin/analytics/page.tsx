@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { useQuery } from '@tanstack/react-query'
 import { Download, FileText } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
@@ -8,12 +9,17 @@ import { KPICard } from '@/components/analytics/KPICard'
 import { TicketStatusDonutChart } from '@/components/analytics/TicketStatusDonutChart'
 import { ResolutionTimeLineChart } from '@/components/analytics/ResolutionTimeLineChart'
 import { TopIssuesTable } from '@/components/analytics/TopIssuesTable'
-import { ComplaintHeatmap } from '@/components/analytics/ComplaintHeatmap'
 import { Button } from '@/components/common/Button'
 import { SkeletonChart, SkeletonKPICard } from '@/components/common/SkeletonLoader'
 import api from '@/lib/api'
 import toast from 'react-hot-toast'
 import { exportAnalyticsPDF } from '@/utils/exportPDF'
+
+// Leaflet must never run on the server
+const ComplaintHeatmap = dynamic(
+  () => import('@/components/analytics/ComplaintHeatmap').then((m) => m.ComplaintHeatmap),
+  { ssr: false, loading: () => <div className="w-full h-72 rounded-lg bg-gray-100 animate-pulse" /> }
+)
 
 const DATE_RANGES = [
   { value: '7', label: 'Last 7 days' },
