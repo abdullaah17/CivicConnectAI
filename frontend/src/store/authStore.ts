@@ -53,10 +53,13 @@ export const useAuthStore = create<AuthState>()(
         isAuthenticated: state.isAuthenticated,
       }),
       onRehydrateStorage: () => (state) => {
-        state?.setHasHydrated(true)
-        // Restore the middleware signal cookie if user is still authenticated
-        if (state?.isAuthenticated && typeof document !== 'undefined') {
-          document.cookie = 'civic-auth-signal=1; path=/; SameSite=Lax; max-age=86400'
+        // Set hydration flag directly in the state object to ensure synchronous update
+        if (state) {
+          state._hasHydrated = true
+          // Restore the middleware signal cookie if user is still authenticated
+          if (state.isAuthenticated && typeof document !== 'undefined') {
+            document.cookie = 'civic-auth-signal=1; path=/; SameSite=Lax; max-age=86400'
+          }
         }
       },
     }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { AppShell } from '@/components/layout/AppShell'
 import { useAuthStore } from '@/store/authStore'
@@ -9,22 +9,47 @@ import { useWebSocket } from '@/hooks/useWebSocket'
 export default function ResidentLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const { isAuthenticated, user, _hasHydrated } = useAuthStore()
+  const [mounted, setMounted] = useState(false)
   useWebSocket()
 
+  // Wait for both Zustand hydration AND component mount
   useEffect(() => {
-    if (!_hasHydrated) return
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    // Don't run any auth checks until both hydration and mount are complete
+    if (!_hasHydrated || !mounted) return
+
+    // If not authenticated, redirect to login
     if (!isAuthenticated) {
       router.push('/login')
       return
     }
+
     // Redirect non-residents to their correct dashboard
-    if (user?.role === 'staff') router.push('/staff/dashboard')
-    else if (user?.role === 'dept_admin') router.push('/admin/dashboard')
-    else if (user?.role === 'super_admin') router.push('/superadmin/dashboard')
-  }, [_hasHydrated, isAuthenticated, user, router])
+    if (user?.role === 'staff') {
+      router.push('/staff/dashboard')
+      return
+    }
+    if (user?.role === 'dept_admin') {
+      router.push('/admin/dashboard')
+      return
+    }
+    if (user?.role === 'super_admin') {
+      router.push('/superadmin/dashboard')
+      return
+    }
+  }, [_hasHydrated, mounted, isAuthenticated, user?.role, router])
 
-  if (!_hasHydrated) return null
-  if (!isAuthenticated || user?.role !== 'resident') return null
+  // Don't render anything until hydration is complete
+  if (!_hasHydrated || !mounted) return null
 
-  return <AppShell role="resident">{children}</AppShell>
+  // If authenticated and is resident, render the layout
+  if (isAuthenticated && user?.role === 'resident') {
+    return <AppShell role="resident">{children}</AppShell>
+  }
+
+  // Otherwise, return null (redirect will happen in useEffect)
+  return null
 }
