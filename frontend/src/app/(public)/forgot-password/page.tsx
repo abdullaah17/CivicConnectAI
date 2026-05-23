@@ -11,6 +11,7 @@ import { Button } from '@/components/common/Button'
 import { Input } from '@/components/common/Input'
 import { useForgotPassword, useResetPassword } from '@/hooks/useAuth'
 import { emailSchema, passwordSchema } from '@/utils/validators'
+import { getErrorMessage } from '@/lib/errorHandler'
 import toast from 'react-hot-toast'
 
 type Step = 'email' | 'otp' | 'reset'
@@ -41,8 +42,8 @@ export default function ForgotPasswordPage() {
       await forgotMutation.mutateAsync(data.email)
       setEmail(data.email)
       setStep('otp')
-    } catch {
-      toast.error('Failed to send OTP. Please check your email.')
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, 'Failed to send reset code. Please check your email and try again.'))
     }
   }
 
@@ -55,9 +56,15 @@ export default function ForgotPasswordPage() {
       await resetMutation.mutateAsync({ email, otp, newPassword: data.newPassword })
       toast.success('Password reset successfully!')
       router.push('/login')
-    } catch {
-      toast.error('Reset failed. The OTP may have expired.')
-      setStep('otp')
+    } catch (err: unknown) {
+      const errorMsg = getErrorMessage(err)
+      if (errorMsg.toLowerCase().includes('expired')) {
+        toast.error('Reset code has expired. Please request a new one.')
+        setStep('email')
+      } else {
+        toast.error(errorMsg)
+        setStep('otp')
+      }
     }
   }
 

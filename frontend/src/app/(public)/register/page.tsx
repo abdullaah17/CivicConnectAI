@@ -9,6 +9,7 @@ import { Button } from '@/components/common/Button'
 import { Input } from '@/components/common/Input'
 import { registerSchema, type RegisterFormData } from '@/utils/validators'
 import { useRegister } from '@/hooks/useAuth'
+import { getErrorMessage } from '@/lib/errorHandler'
 import toast from 'react-hot-toast'
 
 export default function RegisterPage() {
@@ -34,12 +35,12 @@ export default function RegisterPage() {
       setRegisteredEmail(data.email)
       router.push(`/verify-otp?email=${encodeURIComponent(data.email)}`)
     } catch (err: unknown) {
-      const status = (err as { response?: { status?: number; data?: { error?: { message?: string } } } })?.response?.status
-      const message = (err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message
-      if (status === 409) {
+      const errorMsg = getErrorMessage(err)
+      // Check for duplicate email error
+      if (errorMsg.toLowerCase().includes('already exists') || errorMsg.toLowerCase().includes('email')) {
         setError('email', { message: 'An account with this email already exists.' })
       } else {
-        toast.error(message || 'Registration failed. Please try again.')
+        toast.error(errorMsg)
       }
     }
   }

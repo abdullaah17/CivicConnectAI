@@ -11,6 +11,7 @@ import { loginSchema, type LoginFormData } from '@/utils/validators'
 import { useLogin } from '@/hooks/useAuth'
 import { useAuthStore } from '@/store/authStore'
 import api from '@/lib/api'
+import { getErrorMessage, isRateLimitError } from '@/lib/errorHandler'
 import OtpInput from 'react-otp-input'
 import toast from 'react-hot-toast'
 import type { User } from '@/types/user'
@@ -36,14 +37,16 @@ export default function LoginPage() {
         setShow2FA(true)
       }
     } catch (err: unknown) {
-      const status = (err as { response?: { status?: number; data?: { error?: { message?: string } } } })?.response?.status
-      const message = (err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message
-      if (status === 429) {
-        toast.error(message || 'Too many attempts. Please wait 15 minutes and try again.')
-      } else if (status === 401) {
-        setError('password', { message: 'Invalid credentials. Please try again.' })
+      if (isRateLimitError(err)) {
+        toast.error(getErrorMessage(err, 'Too many attempts. Please wait a moment and try again.'))
       } else {
-        toast.error('Login failed. Please try again.')
+        // Check if it's an invalid credentials error
+        const errorMsg = getErrorMessage(err)
+        if (errorMsg.toLowerCase().includes('invalid') || errorMsg.toLowerCase().includes('credentials')) {
+          setError('password', { message: 'Invalid credentials. Please try again.' })
+        } else {
+          toast.error(errorMsg)
+        }
       }
     }
   }
@@ -54,8 +57,8 @@ export default function LoginPage() {
     try {
       const { data } = await api.post('/auth/2fa/verify', { totp_code: totp })
       setAuth(data.data.user as User, data.data.accessToken)
-    } catch {
-      toast.error('Invalid 2FA code. Please try again.')
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, 'Invalid 2FA code. Please try again.'))
     } finally {
       setTotpLoading(false)
     }
