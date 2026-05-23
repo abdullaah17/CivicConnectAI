@@ -18,7 +18,7 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
       return
     }
     if (user?.role !== 'staff') {
-      router.push('/dashboard')
+      router.push('/login')
     }
   }, [_hasHydrated, isAuthenticated, user, router])
 

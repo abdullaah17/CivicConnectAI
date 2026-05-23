@@ -142,6 +142,19 @@ export const useRegisterForEvent = (eventId: string) => {
   })
 }
 
+export const useUnregisterFromEvent = (eventId: string) => {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async () => {
+      await api.delete(`/events/${eventId}/register`)
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['events', eventId] })
+      qc.invalidateQueries({ queryKey: ['events'] })
+    },
+  })
+}
+
 export const useNotifications = (params: { page?: number; limit?: number } = {}) =>
   useQuery({
     queryKey: ['notifications', params],

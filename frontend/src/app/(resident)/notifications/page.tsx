@@ -25,13 +25,14 @@ const typeIcons: Record<Notification['type'], React.ReactNode> = {
 
 export default function NotificationsPage() {
   const router = useRouter()
-  const { data: notifications, isLoading } = useNotifications({ limit: 50 })
+  const { data: notifications, isLoading, refetch } = useNotifications({ limit: 50 })
   const { markAllRead } = useNotificationStore()
 
   const handleMarkAllRead = async () => {
     try {
       await api.patch('/notifications/read-all')
       markAllRead()
+      refetch()
       toast.success('All notifications marked as read.')
     } catch {
       toast.error('Failed to mark notifications as read.')

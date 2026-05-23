@@ -18,7 +18,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       return
     }
     if (user?.role !== 'dept_admin') {
-      router.push('/dashboard')
+      router.push('/login')
     }
   }, [_hasHydrated, isAuthenticated, user, router])
 

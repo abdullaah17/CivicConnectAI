@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useSearchParams } from 'next/navigation'
 import { Button } from '@/components/common/Button'
 import { Input } from '@/components/common/Input'
 import { Modal } from '@/components/common/Modal'
@@ -16,9 +17,11 @@ import OtpInput from 'react-otp-input'
 import toast from 'react-hot-toast'
 import type { User } from '@/types/user'
 
-export default function LoginPage() {
+function LoginForm() {
   const { login: loginMutation } = { login: useLogin() }
   const { setAuth } = useAuthStore()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('redirect') || null
   const [show2FA, setShow2FA] = useState(false)
   const [totp, setTotp] = useState('')
   const [totpLoading, setTotpLoading] = useState(false)
@@ -32,7 +35,7 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      const result = await loginMutation.mutateAsync(data)
+      const result = await loginMutation.mutateAsync({ ...data, redirectTo: redirectTo ?? undefined })
       if (result?.requires2FA) {
         setShow2FA(true)
       }
@@ -40,7 +43,6 @@ export default function LoginPage() {
       if (isRateLimitError(err)) {
         toast.error(getErrorMessage(err, 'Too many attempts. Please wait a moment and try again.'))
       } else {
-        // Check if it's an invalid credentials error
         const errorMsg = getErrorMessage(err)
         if (errorMsg.toLowerCase().includes('invalid') || errorMsg.toLowerCase().includes('credentials')) {
           setError('password', { message: 'Invalid credentials. Please try again.' })
@@ -154,5 +156,13 @@ export default function LoginPage() {
         </div>
       </Modal>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   )
 }

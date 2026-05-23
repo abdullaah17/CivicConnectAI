@@ -19,23 +19,28 @@ export const useLogin = () => {
   const router = useRouter()
 
   return useMutation({
-    mutationFn: async (credentials: { identifier: string; password: string }) => {
-      const { data } = await api.post('/auth/login', credentials)
+    mutationFn: async (credentials: { identifier: string; password: string; redirectTo?: string }) => {
+      const { redirectTo, ...loginPayload } = credentials
+      const { data } = await api.post('/auth/login', loginPayload)
       const raw = data.data
-      // Normalize snake_case → camelCase from backend
       return {
         accessToken: raw.access_token ?? raw.accessToken,
         requires2FA: raw.requires2FA ?? raw.requires_2fa ?? false,
+        redirectTo,
         user: {
           ...raw.user,
           name: raw.user?.full_name ?? raw.user?.name,
         },
-      } as { accessToken: string; user: User; requires2FA?: boolean }
+      } as { accessToken: string; user: User; requires2FA?: boolean; redirectTo?: string }
     },
     onSuccess: (result) => {
       if (result.requires2FA) return // caller handles 2FA modal
       setAuth(result.user, result.accessToken)
-      // Route by role
+      // Honour redirect param from middleware, otherwise route by role
+      if (result.redirectTo) {
+        router.push(result.redirectTo)
+        return
+      }
       const role = result.user.role
       if (role === 'staff') router.push('/staff/dashboard')
       else if (role === 'dept_admin') router.push('/admin/dashboard')

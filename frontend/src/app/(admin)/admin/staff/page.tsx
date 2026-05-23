@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Users, UserPlus, UserX, UserCheck } from 'lucide-react'
+import { Users, UserPlus, UserX, UserCheck, Search } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/common/Button'
 import { Input } from '@/components/common/Input'
@@ -14,6 +14,7 @@ import { Modal } from '@/components/common/Modal'
 import { SkeletonList } from '@/components/common/SkeletonLoader'
 import { EmptyState } from '@/components/common/EmptyState'
 import { emailSchema, nameSchema, passwordSchema } from '@/utils/validators'
+import { getErrorMessage } from '@/lib/errorHandler'
 import api from '@/lib/api'
 import toast from 'react-hot-toast'
 import type { User } from '@/types/user'
@@ -28,6 +29,7 @@ type CreateStaffData = z.infer<typeof createStaffSchema>
 export default function StaffManagementPage() {
   const qc = useQueryClient()
   const [addModal, setAddModal] = useState(false)
+  const [search, setSearch] = useState('')
 
   const { data: staff, isLoading } = useQuery({
     queryKey: ['staff', 'list'],
@@ -36,6 +38,12 @@ export default function StaffManagementPage() {
       return data.data as User[]
     },
   })
+
+  const filtered = staff?.filter((m) =>
+    !search ||
+    m.name.toLowerCase().includes(search.toLowerCase()) ||
+    m.email.toLowerCase().includes(search.toLowerCase())
+  )
 
   const createStaff = useMutation({
     mutationFn: async (payload: CreateStaffData) => {
@@ -48,7 +56,7 @@ export default function StaffManagementPage() {
       setAddModal(false)
       form.reset()
     },
-    onError: () => toast.error('Failed to create staff account.'),
+    onError: (err) => toast.error(getErrorMessage(err, 'Failed to create staff account.')),
   })
 
   const toggleStatus = useMutation({
@@ -59,7 +67,7 @@ export default function StaffManagementPage() {
       qc.invalidateQueries({ queryKey: ['staff'] })
       toast.success('Staff status updated.')
     },
-    onError: () => toast.error('Failed to update status.'),
+    onError: (err) => toast.error(getErrorMessage(err, 'Failed to update status.')),
   })
 
   const form = useForm<CreateStaffData>({ resolver: zodResolver(createStaffSchema) })
@@ -77,15 +85,30 @@ export default function StaffManagementPage() {
         }
       />
 
+      {/* Search */}
+      <div className="mb-6">
+        <div className="relative max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" aria-hidden="true" />
+          <input
+            type="search"
+            placeholder="Search by name or email..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-3 py-2 rounded-sm border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary-700"
+            aria-label="Search staff"
+          />
+        </div>
+      </div>
+
       {isLoading ? (
         <SkeletonList count={4} />
-      ) : !staff?.length ? (
+      ) : !filtered?.length ? (
         <EmptyState
           icon={<Users className="w-12 h-12" />}
-          title="No staff members"
-          description="Add staff members to your department."
-          ctaLabel="Add Staff"
-          ctaAction={() => setAddModal(true)}
+          title={search ? 'No staff found' : 'No staff members'}
+          description={search ? 'Try a different search term.' : 'Add staff members to your department.'}
+          ctaLabel={!search ? 'Add Staff' : undefined}
+          ctaAction={!search ? () => setAddModal(true) : undefined}
         />
       ) : (
         <div className="bg-white rounded-lg shadow-card border border-gray-100 overflow-hidden">
@@ -99,7 +122,7 @@ export default function StaffManagementPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {staff.map((member) => (
+              {filtered.map((member) => (
                 <tr key={member.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-4 py-3 font-medium text-gray-900">{member.name}</td>
                   <td className="px-4 py-3 text-gray-600">{member.email}</td>

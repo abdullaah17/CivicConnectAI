@@ -18,7 +18,7 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
       return
     }
     if (user?.role !== 'super_admin') {
-      router.push('/dashboard')
+      router.push('/login')
     }
   }, [_hasHydrated, isAuthenticated, user, router])
 

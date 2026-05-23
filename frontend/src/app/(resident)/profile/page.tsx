@@ -11,6 +11,7 @@ import { Input } from '@/components/common/Input'
 import { Badge } from '@/components/common/Badge'
 import { useAuthStore } from '@/store/authStore'
 import { nameSchema, passwordSchema } from '@/utils/validators'
+import { getErrorMessage } from '@/lib/errorHandler'
 import api from '@/lib/api'
 import toast from 'react-hot-toast'
 
@@ -42,8 +43,8 @@ export default function ProfilePage() {
       const { data: res } = await api.patch('/users/me', data)
       updateUser({ name: res.data.name })
       toast.success('Profile updated.')
-    } catch {
-      toast.error('Failed to update profile.')
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, 'Failed to update profile.'))
     }
   }
 
@@ -55,8 +56,8 @@ export default function ProfilePage() {
       })
       toast.success('Password changed successfully.')
       passwordForm.reset()
-    } catch {
-      toast.error('Failed to change password. Check your current password.')
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, 'Failed to change password. Check your current password.'))
     }
   }
 
@@ -73,8 +74,8 @@ export default function ProfilePage() {
       })
       updateUser({ profile_photo_url: data.data.profile_photo_url })
       toast.success('Profile photo updated.')
-    } catch {
-      toast.error('Failed to upload photo.')
+    } catch (err: unknown) {
+      toast.error(getErrorMessage(err, 'Failed to upload photo.'))
       setPhotoPreview(null)
     }
   }

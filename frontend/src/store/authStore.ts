@@ -21,11 +21,22 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       _hasHydrated: false,
 
-      setAuth: (user, accessToken) =>
-        set({ user, accessToken, isAuthenticated: true }),
+      setAuth: (user, accessToken) => {
+        // Set a lightweight cookie so middleware can detect auth state
+        // (localStorage is not accessible in middleware)
+        if (typeof document !== 'undefined') {
+          document.cookie = 'civic-auth-signal=1; path=/; SameSite=Lax; max-age=86400'
+        }
+        set({ user, accessToken, isAuthenticated: true })
+      },
 
-      logout: () =>
-        set({ user: null, accessToken: null, isAuthenticated: false }),
+      logout: () => {
+        // Clear the middleware auth signal cookie
+        if (typeof document !== 'undefined') {
+          document.cookie = 'civic-auth-signal=; path=/; max-age=0'
+        }
+        set({ user: null, accessToken: null, isAuthenticated: false })
+      },
 
       updateUser: (updates) =>
         set((state) => ({
@@ -43,6 +54,10 @@ export const useAuthStore = create<AuthState>()(
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true)
+        // Restore the middleware signal cookie if user is still authenticated
+        if (state?.isAuthenticated && typeof document !== 'undefined') {
+          document.cookie = 'civic-auth-signal=1; path=/; SameSite=Lax; max-age=86400'
+        }
       },
     }
   )

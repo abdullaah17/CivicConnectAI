@@ -6,7 +6,7 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/common/Button'
 import { Badge } from '@/components/common/Badge'
 import { SkeletonCard } from '@/components/common/SkeletonLoader'
-import { useEvent, useRegisterForEvent } from '@/hooks/useAnnouncements'
+import { useEvent, useRegisterForEvent, useUnregisterFromEvent } from '@/hooks/useAnnouncements'
 import { formatDate } from '@/utils/formatDate'
 import { clsx } from 'clsx'
 import toast from 'react-hot-toast'
@@ -17,6 +17,7 @@ export default function EventDetailPage() {
   const router = useRouter()
   const { data: event, isLoading } = useEvent(eventId)
   const register = useRegisterForEvent(eventId)
+  const unregister = useUnregisterFromEvent(eventId)
 
   const handleRegister = async () => {
     try {
@@ -24,6 +25,15 @@ export default function EventDetailPage() {
       toast.success(`You're registered for ${event?.title}!`)
     } catch {
       toast.error('Registration failed. Please try again.')
+    }
+  }
+
+  const handleUnregister = async () => {
+    try {
+      await unregister.mutateAsync()
+      toast.success('You have unregistered from this event.')
+    } catch {
+      toast.error('Failed to unregister. Please try again.')
     }
   }
 
@@ -110,8 +120,14 @@ export default function EventDetailPage() {
             </Button>
           )}
           {event.is_registered && (
-            <Button variant="success" size="sm" disabled>
-              Registered ✓
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleUnregister}
+              loading={unregister.isPending}
+              className="text-danger border-danger hover:bg-danger-bg"
+            >
+              Unregister
             </Button>
           )}
         </div>
