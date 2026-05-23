@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api'
+import { useAuthStore } from '@/store/authStore'
 import type { PermitApplication, PermitListItem, PermitTypeInfo } from '@/types/permit'
 
 export const usePermitTypes = () =>
@@ -11,14 +12,17 @@ export const usePermitTypes = () =>
     },
   })
 
-export const useMyPermits = () =>
-  useQuery({
+export const useMyPermits = () => {
+  const { isAuthenticated, _hasHydrated } = useAuthStore()
+  return useQuery({
     queryKey: ['permits', 'mine'],
     queryFn: async () => {
       const { data } = await api.get<{ data: PermitListItem[] }>('/permits')
       return data.data
     },
+    enabled: isAuthenticated && _hasHydrated,
   })
+}
 
 export const usePermit = (id: string) =>
   useQuery({

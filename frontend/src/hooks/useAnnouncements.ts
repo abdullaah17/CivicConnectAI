@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api'
+import { useAuthStore } from '@/store/authStore'
 import type { Announcement, Event, Notification } from '@/types/announcement'
 
 interface AnnouncementFilters {
@@ -89,14 +90,17 @@ function normalizeNotification(raw: any): Notification {
   }
 }
 
-export const useAnnouncements = (filters: AnnouncementFilters = {}) =>
-  useQuery({
+export const useAnnouncements = (filters: AnnouncementFilters = {}) => {
+  const { isAuthenticated, _hasHydrated } = useAuthStore()
+  return useQuery({
     queryKey: ['announcements', filters],
     queryFn: async () => {
       const { data } = await api.get<{ data: unknown[] }>('/announcements', { params: filters })
       return (data.data ?? []).map(normalizeAnnouncement)
     },
+    enabled: isAuthenticated && _hasHydrated,
   })
+}
 
 export const useMarkAnnouncementRead = () => {
   const qc = useQueryClient()
@@ -110,14 +114,17 @@ export const useMarkAnnouncementRead = () => {
   })
 }
 
-export const useEvents = (filters: { category?: string; date_from?: string; date_to?: string; page?: number } = {}) =>
-  useQuery({
+export const useEvents = (filters: { category?: string; date_from?: string; date_to?: string; page?: number } = {}) => {
+  const { isAuthenticated, _hasHydrated } = useAuthStore()
+  return useQuery({
     queryKey: ['events', filters],
     queryFn: async () => {
       const { data } = await api.get<{ data: unknown[] }>('/events', { params: filters })
       return (data.data ?? []).map(normalizeEvent)
     },
+    enabled: isAuthenticated && _hasHydrated,
   })
+}
 
 export const useEvent = (id: string) =>
   useQuery({
@@ -155,11 +162,14 @@ export const useUnregisterFromEvent = (eventId: string) => {
   })
 }
 
-export const useNotifications = (params: { page?: number; limit?: number } = {}) =>
-  useQuery({
+export const useNotifications = (params: { page?: number; limit?: number } = {}) => {
+  const { isAuthenticated, _hasHydrated } = useAuthStore()
+  return useQuery({
     queryKey: ['notifications', params],
     queryFn: async () => {
       const { data } = await api.get<{ data: unknown[] }>('/notifications', { params })
       return (data.data ?? []).map(normalizeNotification)
     },
+    enabled: isAuthenticated && _hasHydrated,
   })
+}

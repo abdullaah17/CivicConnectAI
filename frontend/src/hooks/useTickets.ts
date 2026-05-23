@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api'
+import { useAuthStore } from '@/store/authStore'
 import type { Ticket, TicketListItem, TicketStats, CreateTicketPayload, TicketStatus, TicketPriority } from '@/types/ticket'
 
 // ─── Backend → Frontend normalizers ──────────────────────────────────────────
@@ -133,8 +134,9 @@ interface PaginatedTickets {
 }
 
 // Resident: my tickets
-export const useMyTickets = (filters: TicketFilters = {}) =>
-  useQuery({
+export const useMyTickets = (filters: TicketFilters = {}) => {
+  const { isAuthenticated, _hasHydrated } = useAuthStore()
+  return useQuery({
     queryKey: ['tickets', filters],
     queryFn: async () => {
       const { data } = await api.get<{ data: PaginatedTickets }>('/tickets', { params: filters })
@@ -144,7 +146,9 @@ export const useMyTickets = (filters: TicketFilters = {}) =>
         tickets: raw.tickets.map(normalizeTicketListItem),
       }
     },
+    enabled: isAuthenticated && _hasHydrated,
   })
+}
 
 // Single ticket detail
 export const useTicket = (ticketId: string) =>
@@ -158,8 +162,9 @@ export const useTicket = (ticketId: string) =>
   })
 
 // Staff: assigned queue
-export const useStaffQueue = (filters: TicketFilters = {}) =>
-  useQuery({
+export const useStaffQueue = (filters: TicketFilters = {}) => {
+  const { isAuthenticated, _hasHydrated } = useAuthStore()
+  return useQuery({
     queryKey: ['tickets', 'assigned', filters],
     queryFn: async () => {
       const { data } = await api.get<{ data: PaginatedTickets }>('/tickets', {
@@ -171,7 +176,9 @@ export const useStaffQueue = (filters: TicketFilters = {}) =>
         tickets: raw.tickets.map(normalizeTicketListItem),
       }
     },
+    enabled: isAuthenticated && _hasHydrated,
   })
+}
 
 // Admin: all dept tickets
 export const useDeptTickets = (deptId: string, filters: TicketFilters = {}) =>
@@ -191,14 +198,17 @@ export const useDeptTickets = (deptId: string, filters: TicketFilters = {}) =>
   })
 
 // Ticket stats
-export const useTicketStats = () =>
-  useQuery({
+export const useTicketStats = () => {
+  const { isAuthenticated, _hasHydrated } = useAuthStore()
+  return useQuery({
     queryKey: ['tickets', 'stats'],
     queryFn: async () => {
       const { data } = await api.get<{ data: TicketStats }>('/tickets/stats')
       return data.data
     },
+    enabled: isAuthenticated && _hasHydrated,
   })
+}
 
 // Upload a single attachment file to Cloudinary via the backend
 // Returns the public URL string
