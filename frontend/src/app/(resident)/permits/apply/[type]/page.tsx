@@ -14,9 +14,15 @@ import type { PermitType } from '@/types/permit'
 import toast from 'react-hot-toast'
 
 const permitLabels: Record<PermitType, string> = {
-  construction: 'Construction Permit',
-  event: 'Event Permit',
-  business_license: 'Business License Renewal',
+  construction_permit: 'Construction Permit',
+  event_permit: 'Event Permit',
+  business_license_renewal: 'Business License Renewal',
+}
+
+const legacyPermitTypeMap: Record<string, PermitType> = {
+  construction: 'construction_permit',
+  event: 'event_permit',
+  business_license: 'business_license_renewal',
 }
 
 // ── Event Permit schemas ──────────────────────────────────────────────────────
@@ -43,8 +49,8 @@ export default function PermitApplicationPage() {
   const params = useParams<{ type: string }>()
   const rawType = Array.isArray(params?.type) ? params.type[0] : (params?.type ?? '')
   const router = useRouter()
-  const permitType = rawType as PermitType
-  const isValidType = rawType in permitLabels
+  const permitType = (legacyPermitTypeMap[rawType] ?? rawType) as PermitType
+  const isValidType = permitType in permitLabels
   const createPermit = useCreatePermit()
 
   const [docs, setDocs] = useState<File[]>([])
@@ -95,9 +101,7 @@ export default function PermitApplicationPage() {
     try {
       const formData = new FormData()
       formData.append('permit_type', permitType)
-      Object.entries({ ...data1, ...data2 }).forEach(([k, v]) => {
-        formData.append(k, String(v))
-      })
+      formData.append('form_data', JSON.stringify({ ...data1, ...data2 }))
       docs.forEach((f) => formData.append('documents', f))
       const permit = await createPermit.mutateAsync(formData)
       toast.success(`Application ${permit.application_number} submitted!`)

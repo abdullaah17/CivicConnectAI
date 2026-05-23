@@ -12,6 +12,7 @@ import { Badge } from '@/components/common/Badge'
 import { useAuthStore } from '@/store/authStore'
 import { nameSchema, passwordSchema } from '@/utils/validators'
 import { getErrorMessage } from '@/lib/errorHandler'
+import { normalizeUser } from '@/lib/normalizers'
 import api from '@/lib/api'
 import toast from 'react-hot-toast'
 
@@ -41,7 +42,7 @@ export default function ProfilePage() {
   const handleProfileUpdate = async (data: { name: string }) => {
     try {
       const { data: res } = await api.patch('/users/me', data)
-      updateUser({ name: res.data.name })
+      updateUser(normalizeUser(res.data))
       toast.success('Profile updated.')
     } catch (err: unknown) {
       toast.error(getErrorMessage(err, 'Failed to update profile.'))
@@ -69,10 +70,8 @@ export default function ProfilePage() {
     const formData = new FormData()
     formData.append('profile_photo', file)
     try {
-      const { data } = await api.patch('/users/me', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
-      updateUser({ profile_photo_url: data.data.profile_photo_url })
+      const { data } = await api.patch('/users/me', formData)
+      updateUser(normalizeUser(data.data))
       toast.success('Profile photo updated.')
     } catch (err: unknown) {
       toast.error(getErrorMessage(err, 'Failed to upload photo.'))

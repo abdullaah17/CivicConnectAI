@@ -46,7 +46,7 @@ export default function EmergencyBroadcastPage() {
     try {
       await api.post('/announcements', {
         ...pendingData,
-        category: 'Safety',
+        category: 'emergency',
         priority: 'emergency',
       })
       // Invalidate announcements so residents see it immediately

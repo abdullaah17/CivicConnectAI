@@ -17,6 +17,27 @@ export interface ApiErrorResponse {
   statusCode?: number
 }
 
+type ValidationDetails = Array<{ field?: string; message: string }> | Record<string, string> | string | undefined
+
+function formatValidationDetails(details: ValidationDetails): string | null {
+  if (Array.isArray(details) && details.length > 0) {
+    return details.map((d) => (d.field ? `${d.field}: ${d.message}` : d.message)).join('; ')
+  }
+
+  if (typeof details === 'object' && details !== null && !Array.isArray(details)) {
+    const fieldErrors = Object.entries(details as Record<string, string>)
+      .map(([field, message]) => `${field}: ${message}`)
+      .join('; ')
+    return fieldErrors || null
+  }
+
+  if (typeof details === 'string' && details.trim()) {
+    return details
+  }
+
+  return null
+}
+
 /**
  * Extract meaningful error message from API error response
  * Falls back to generic message if specific error details not available
@@ -29,6 +50,8 @@ export function getErrorMessage(error: unknown, defaultMessage: string = 'An err
 
     // Handle specific HTTP status codes
     if (status === 400) {
+      const detailsMessage = formatValidationDetails(data?.error?.details)
+      if (detailsMessage) return detailsMessage
       return data?.error?.message || data?.message || 'Invalid request. Please check your input.'
     }
     if (status === 401) {
@@ -45,17 +68,8 @@ export function getErrorMessage(error: unknown, defaultMessage: string = 'An err
     }
     if (status === 422) {
       // Validation error - extract field-specific errors if available
-      const details = data?.error?.details
-      if (Array.isArray(details) && details.length > 0) {
-        // Backend PRD §2.3: array of { field, message } objects
-        return details.map((d) => (d.field ? `${d.field}: ${d.message}` : d.message)).join('; ')
-      }
-      if (typeof details === 'object' && details !== null && !Array.isArray(details)) {
-        const fieldErrors = Object.entries(details as Record<string, string>)
-          .map(([field, message]) => `${field}: ${message}`)
-          .join('; ')
-        return fieldErrors || 'Validation failed. Please check your input.'
-      }
+      const detailsMessage = formatValidationDetails(data?.error?.details)
+      if (detailsMessage) return detailsMessage
       return data?.error?.message || 'Validation failed. Please check your input.'
     }
     if (status === 429) {

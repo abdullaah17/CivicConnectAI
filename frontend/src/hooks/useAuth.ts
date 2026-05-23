@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
+import { normalizeUser } from '@/lib/normalizers'
 import { useAuthStore } from '@/store/authStore'
 import type { User } from '@/types/user'
 
@@ -9,7 +10,7 @@ export const useCurrentUser = () =>
     queryKey: ['auth', 'me'],
     queryFn: async () => {
       const { data } = await api.get<{ data: User }>('/users/me')
-      return data.data
+      return normalizeUser(data.data)
     },
     enabled: useAuthStore.getState().isAuthenticated,
   })
@@ -26,15 +27,14 @@ export const useLogin = () => {
       return {
         accessToken: raw.access_token ?? raw.accessToken,
         requires2FA: raw.requires2FA ?? raw.requires_2fa ?? false,
+        tempToken: raw.temp_token ?? raw.tempToken,
         redirectTo,
-        user: {
-          ...raw.user,
-          name: raw.user?.full_name ?? raw.user?.name,
-        },
-      } as { accessToken: string; user: User; requires2FA?: boolean; redirectTo?: string }
+        user: raw.user ? normalizeUser(raw.user) : undefined,
+      } as { accessToken?: string; user?: User; requires2FA?: boolean; tempToken?: string; redirectTo?: string }
     },
     onSuccess: (result) => {
       if (result.requires2FA) return // caller handles 2FA modal
+      if (!result.user || !result.accessToken) return
       setAuth(result.user, result.accessToken)
       // Honour redirect param from middleware, otherwise route by role
       if (result.redirectTo) {
@@ -79,7 +79,7 @@ export const useVerifyOTP = () => {
       const raw = data.data
       return {
         accessToken: raw.access_token ?? raw.accessToken,
-        user: { ...raw.user, name: raw.user?.full_name ?? raw.user?.name },
+        user: normalizeUser(raw.user),
       } as { accessToken: string; user: User }
     },
     onSuccess: (result) => {

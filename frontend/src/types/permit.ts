@@ -1,4 +1,4 @@
-export type PermitType = 'construction' | 'event' | 'business_license'
+export type PermitType = 'construction_permit' | 'event_permit' | 'business_license_renewal'
 
 export type PermitStatus =
   | 'Draft'

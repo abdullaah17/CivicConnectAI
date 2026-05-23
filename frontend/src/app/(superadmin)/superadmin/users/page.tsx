@@ -9,6 +9,7 @@ import { Select } from '@/components/common/Input'
 import { Badge } from '@/components/common/Badge'
 import { SkeletonList } from '@/components/common/SkeletonLoader'
 import { EmptyState } from '@/components/common/EmptyState'
+import { normalizeUser } from '@/lib/normalizers'
 import api from '@/lib/api'
 import toast from 'react-hot-toast'
 import type { User } from '@/types/user'
@@ -37,7 +38,7 @@ export default function UserManagementPage() {
     queryKey: ['users', 'all', { role }],
     queryFn: async () => {
       const { data } = await api.get('/users', { params: { role: role || undefined } })
-      return data.data as User[]
+      return (data.data as User[]).map(normalizeUser)
     },
   })
 

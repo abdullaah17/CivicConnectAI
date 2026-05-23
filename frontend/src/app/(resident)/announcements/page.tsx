@@ -11,12 +11,11 @@ import { useAnnouncements, useMarkAnnouncementRead } from '@/hooks/useAnnounceme
 
 const CATEGORY_OPTIONS = [
   { value: '', label: 'All Categories' },
-  { value: 'General', label: 'General' },
-  { value: 'Infrastructure', label: 'Infrastructure' },
-  { value: 'Health', label: 'Health' },
-  { value: 'Safety', label: 'Safety' },
-  { value: 'Events', label: 'Events' },
-  { value: 'Permits', label: 'Permits' },
+  { value: 'general', label: 'General' },
+  { value: 'infrastructure', label: 'Infrastructure' },
+  { value: 'health', label: 'Health' },
+  { value: 'culture', label: 'Culture' },
+  { value: 'emergency', label: 'Emergency' },
 ]
 
 const PRIORITY_OPTIONS = [

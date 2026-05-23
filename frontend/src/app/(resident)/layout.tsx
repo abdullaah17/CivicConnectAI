@@ -1,13 +1,14 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { AppShell } from '@/components/layout/AppShell'
 import { useAuthStore } from '@/store/authStore'
 import { useWebSocket } from '@/hooks/useWebSocket'
 
 export default function ResidentLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
+  const pathname = usePathname()
   const { isAuthenticated, user, _hasHydrated } = useAuthStore()
   const [mounted, setMounted] = useState(false)
   
@@ -25,7 +26,7 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
 
     // If not authenticated, redirect to login
     if (!isAuthenticated) {
-      router.push('/login')
+      router.push(`/login?redirect=${encodeURIComponent(pathname)}`)
       return
     }
 
@@ -42,7 +43,7 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
       router.push('/superadmin/dashboard')
       return
     }
-  }, [_hasHydrated, mounted, isAuthenticated, user?.role, router])
+  }, [_hasHydrated, mounted, isAuthenticated, user?.role, pathname, router])
 
   // Don't render anything until hydration is complete
   if (!_hasHydrated || !mounted) return null

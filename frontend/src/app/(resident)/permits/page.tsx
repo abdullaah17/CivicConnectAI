@@ -12,19 +12,19 @@ import { formatDate, formatCurrency } from '@/utils/formatDate'
 import type { PermitType, PermitStatus } from '@/types/permit'
 
 const permitTypeConfig: Record<PermitType, { icon: React.ReactNode; label: string; description: string; fee: string }> = {
-  construction: {
+  construction_permit: {
     icon: <HardHat className="w-6 h-6" />,
     label: 'Construction Permit',
     description: 'For building, renovation, or demolition projects.',
     fee: 'From PKR 10,000',
   },
-  event: {
+  event_permit: {
     icon: <Calendar className="w-6 h-6" />,
     label: 'Event Permit',
     description: 'For public events, gatherings, and performances.',
     fee: 'From PKR 5,000',
   },
-  business_license: {
+  business_license_renewal: {
     icon: <Briefcase className="w-6 h-6" />,
     label: 'Business License Renewal',
     description: 'Renew your existing business operating license.',

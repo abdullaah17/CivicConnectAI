@@ -1,13 +1,14 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { AppShell } from '@/components/layout/AppShell'
 import { useAuthStore } from '@/store/authStore'
 import { useWebSocket } from '@/hooks/useWebSocket'
 
 export default function SuperAdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
+  const pathname = usePathname()
   const { isAuthenticated, user, _hasHydrated } = useAuthStore()
   const [mounted, setMounted] = useState(false)
   
@@ -22,15 +23,23 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
     if (!_hasHydrated || !mounted) return
 
     if (!isAuthenticated) {
-      router.push('/login')
+      router.push(`/login?redirect=${encodeURIComponent(pathname)}`)
       return
     }
 
-    if (user?.role !== 'super_admin') {
-      router.push('/login')
+    if (user?.role === 'resident') {
+      router.push('/dashboard')
       return
     }
-  }, [_hasHydrated, mounted, isAuthenticated, user?.role, router])
+    if (user?.role === 'staff') {
+      router.push('/staff/dashboard')
+      return
+    }
+    if (user?.role === 'dept_admin') {
+      router.push('/admin/dashboard')
+      return
+    }
+  }, [_hasHydrated, mounted, isAuthenticated, user?.role, pathname, router])
 
   if (!_hasHydrated || !mounted) return null
   if (!isAuthenticated || user?.role !== 'super_admin') return null

@@ -13,9 +13,9 @@ import { useLogin } from '@/hooks/useAuth'
 import { useAuthStore } from '@/store/authStore'
 import api from '@/lib/api'
 import { getErrorMessage, isRateLimitError } from '@/lib/errorHandler'
+import { normalizeUser } from '@/lib/normalizers'
 import OtpInput from 'react-otp-input'
 import toast from 'react-hot-toast'
-import type { User } from '@/types/user'
 
 function LoginForm() {
   const loginMutation = useLogin()
@@ -24,6 +24,7 @@ function LoginForm() {
   const redirectTo = searchParams.get('redirect') || null
   const [show2FA, setShow2FA] = useState(false)
   const [totp, setTotp] = useState('')
+  const [tempToken, setTempToken] = useState('')
   const [totpLoading, setTotpLoading] = useState(false)
 
   const {
@@ -37,6 +38,7 @@ function LoginForm() {
     try {
       const result = await loginMutation.mutateAsync({ ...data, redirectTo: redirectTo ?? undefined })
       if (result?.requires2FA) {
+        setTempToken(result.tempToken ?? '')
         setShow2FA(true)
       }
     } catch (err: unknown) {
@@ -57,8 +59,28 @@ function LoginForm() {
     if (totp.length !== 6) return
     setTotpLoading(true)
     try {
-      const { data } = await api.post('/auth/2fa/verify', { totp_code: totp })
-      setAuth(data.data.user as User, data.data.accessToken)
+      const { data } = await api.post(
+        '/auth/2fa/verify',
+        { totp_code: totp },
+        tempToken ? { headers: { Authorization: `Bearer ${tempToken}` } } : undefined
+      )
+      const raw = data.data
+      const user = normalizeUser(raw.user)
+      const accessToken = raw.access_token ?? raw.accessToken
+      setAuth(user, accessToken)
+      setShow2FA(false)
+      setTempToken('')
+      if (redirectTo) {
+        window.location.href = redirectTo
+      } else if (user.role === 'staff') {
+        window.location.href = '/staff/dashboard'
+      } else if (user.role === 'dept_admin') {
+        window.location.href = '/admin/dashboard'
+      } else if (user.role === 'super_admin') {
+        window.location.href = '/superadmin/dashboard'
+      } else {
+        window.location.href = '/dashboard'
+      }
     } catch (err: unknown) {
       toast.error(getErrorMessage(err, 'Invalid 2FA code. Please try again.'))
     } finally {

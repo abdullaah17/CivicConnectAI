@@ -16,7 +16,9 @@ import { useTicket, useUpdateTicketStatus, useAddComment, useAssignTicket } from
 import { formatDateTime } from '@/utils/formatDate'
 import { MapPin, Calendar, UserCheck } from 'lucide-react'
 import api from '@/lib/api'
+import { normalizeUser } from '@/lib/normalizers'
 import toast from 'react-hot-toast'
+import type { User } from '@/types/user'
 import type { TicketStatus } from '@/types/ticket'
 
 const ALL_STATUSES: TicketStatus[] = ['Submitted', 'Under Review', 'Assigned', 'In Progress', 'Resolved', 'Closed']
@@ -36,7 +38,7 @@ export default function AdminTicketDetailPage() {
     queryKey: ['staff', 'list'],
     queryFn: async () => {
       const { data } = await api.get('/users', { params: { role: 'staff' } })
-      return data.data as { id: string; name: string }[]
+      return (data.data as User[]).map(normalizeUser)
     },
   })
 

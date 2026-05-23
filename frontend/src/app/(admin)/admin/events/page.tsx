@@ -33,12 +33,11 @@ type EventFormData = z.infer<typeof eventSchema>
 
 const CATEGORY_OPTIONS = [
   { value: '', label: 'Select category...' },
-  { value: 'Community', label: 'Community' },
-  { value: 'Health', label: 'Health' },
-  { value: 'Education', label: 'Education' },
-  { value: 'Sports', label: 'Sports' },
-  { value: 'Culture', label: 'Culture' },
-  { value: 'Government', label: 'Government' },
+  { value: 'general', label: 'General' },
+  { value: 'health', label: 'Health' },
+  { value: 'infrastructure', label: 'Infrastructure' },
+  { value: 'culture', label: 'Culture' },
+  { value: 'emergency', label: 'Emergency' },
 ]
 
 export default function EventsManagerPage() {
@@ -53,11 +52,11 @@ export default function EventsManagerPage() {
 
   const createMutation = useMutation({
     mutationFn: async (payload: EventFormData) => {
-      // Backend expects eventDate as ISO string
+      // Backend expects event_date as an ISO datetime string
       const { date, time, ...rest } = payload
       await api.post('/events', {
         ...rest,
-        eventDate: `${date}T${convertTimeTo24h(time)}:00.000Z`,
+        event_date: `${date}T${convertTimeTo24h(time)}:00.000Z`,
       })
     },
     onSuccess: () => {
@@ -74,7 +73,7 @@ export default function EventsManagerPage() {
       const { date, time, ...rest } = payload
       await api.patch(`/events/${id}`, {
         ...rest,
-        eventDate: `${date}T${convertTimeTo24h(time)}:00.000Z`,
+        event_date: `${date}T${convertTimeTo24h(time)}:00.000Z`,
       })
     },
     onSuccess: () => {
@@ -88,7 +87,7 @@ export default function EventsManagerPage() {
 
   const cancelMutation = useMutation({
     mutationFn: async (id: string) => {
-      await api.patch(`/events/${id}/cancel`)
+      await api.delete(`/events/${id}`)
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['events'] })

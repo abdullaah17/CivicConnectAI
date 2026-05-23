@@ -11,6 +11,14 @@ export const api = axios.create({
   },
 })
 
+const refreshClient = axios.create({
+  baseURL: BASE_URL,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+})
+
 // Request interceptor — attach access token
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken
@@ -42,8 +50,10 @@ api.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
     const originalRequest = error.config as typeof error.config & { _retry?: boolean }
+    const requestUrl = originalRequest?.url ?? ''
+    const isAuthRequest = requestUrl.includes('/auth/')
 
-    if (error.response?.status === 401 && !originalRequest?._retry) {
+    if (error.response?.status === 401 && !originalRequest?._retry && !isAuthRequest) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject })
@@ -59,9 +69,13 @@ api.interceptors.response.use(
       isRefreshing = true
 
       try {
-        const { data } = await api.post('/auth/refresh')
+        const { data } = await refreshClient.post('/auth/refresh')
         const newToken = data.data.access_token ?? data.data.accessToken
-        useAuthStore.getState().setAuth(useAuthStore.getState().user!, newToken)
+        const currentUser = useAuthStore.getState().user
+        if (!currentUser) {
+          throw new Error('Cannot refresh session without a current user.')
+        }
+        useAuthStore.getState().setAuth(currentUser, newToken)
         processQueue(null, newToken)
         originalRequest!.headers!['Authorization'] = `Bearer ${newToken}`
         return api(originalRequest!)

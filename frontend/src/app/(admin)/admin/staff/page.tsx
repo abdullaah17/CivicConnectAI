@@ -15,6 +15,7 @@ import { SkeletonList } from '@/components/common/SkeletonLoader'
 import { EmptyState } from '@/components/common/EmptyState'
 import { emailSchema, nameSchema, passwordSchema } from '@/utils/validators'
 import { getErrorMessage } from '@/lib/errorHandler'
+import { normalizeUser } from '@/lib/normalizers'
 import api from '@/lib/api'
 import toast from 'react-hot-toast'
 import type { User } from '@/types/user'
@@ -35,7 +36,7 @@ export default function StaffManagementPage() {
     queryKey: ['staff', 'list'],
     queryFn: async () => {
       const { data } = await api.get('/users', { params: { role: 'staff' } })
-      return data.data as User[]
+      return (data.data as User[]).map(normalizeUser)
     },
   })
 

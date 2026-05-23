@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { isAxiosError } from 'axios'
 import api from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
 import type { Ticket, TicketListItem, TicketStats, CreateTicketPayload, TicketStatus, TicketPriority } from '@/types/ticket'
@@ -39,6 +40,22 @@ function normalizeStatus(s: string): TicketStatus {
 
 function normalizePriority(p: string): TicketPriority {
   return PRIORITY_MAP[p] ?? (p as TicketPriority)
+}
+
+function toBackendStatus(status: string): string {
+  return status.toLowerCase().replace(/\s+/g, '_')
+}
+
+function toBackendPriority(priority: string): string {
+  return priority.toLowerCase()
+}
+
+function normalizeTicketFilters(filters: TicketFilters): TicketFilters {
+  return {
+    ...filters,
+    status: filters.status ? toBackendStatus(filters.status) : undefined,
+    priority: filters.priority ? toBackendPriority(filters.priority) : undefined,
+  }
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -139,7 +156,7 @@ export const useMyTickets = (filters: TicketFilters = {}) => {
   return useQuery({
     queryKey: ['tickets', filters],
     queryFn: async () => {
-      const { data } = await api.get<{ data: PaginatedTickets }>('/tickets', { params: filters })
+      const { data } = await api.get<{ data: PaginatedTickets }>('/tickets', { params: normalizeTicketFilters(filters) })
       const raw = data.data
       return {
         ...raw,
@@ -168,7 +185,7 @@ export const useStaffQueue = (filters: TicketFilters = {}) => {
     queryKey: ['tickets', 'assigned', filters],
     queryFn: async () => {
       const { data } = await api.get<{ data: PaginatedTickets }>('/tickets', {
-        params: { ...filters, assigned_to_me: true },
+        params: { ...normalizeTicketFilters(filters), assigned_to_me: true },
       })
       const raw = data.data
       return {
@@ -186,7 +203,7 @@ export const useDeptTickets = (deptId: string, filters: TicketFilters = {}) =>
     queryKey: ['tickets', 'department', { deptId, ...filters }],
     queryFn: async () => {
       const { data } = await api.get<{ data: PaginatedTickets }>('/tickets', {
-        params: { department_id: deptId, ...filters },
+        params: { department_id: deptId, ...normalizeTicketFilters(filters) },
       })
       const raw = data.data
       return {
@@ -263,8 +280,23 @@ export const useCreateTicket = () => {
         body.attachment_urls = attachmentUrls
       }
 
-      const { data } = await api.post<{ data: Ticket }>('/tickets', body)
-      return normalizeTicket(data.data)
+      if (process.env.NODE_ENV === 'development') {
+        console.info('[Submit Request] POST /tickets payload', body)
+      }
+
+      try {
+        const { data } = await api.post<{ data: Ticket }>('/tickets', body)
+        return normalizeTicket(data.data)
+      } catch (err) {
+        if (process.env.NODE_ENV === 'development') {
+          console.error('[Submit Request] POST /tickets failed', {
+            status: isAxiosError(err) ? err.response?.status : undefined,
+            data: isAxiosError(err) ? err.response?.data : undefined,
+            message: err instanceof Error ? err.message : String(err),
+          })
+        }
+        throw err
+      }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['tickets'] })

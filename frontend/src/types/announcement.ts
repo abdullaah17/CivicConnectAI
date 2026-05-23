@@ -1,11 +1,10 @@
 export type AnnouncementPriority = 'normal' | 'urgent' | 'emergency'
 export type AnnouncementCategory =
-  | 'General'
-  | 'Infrastructure'
-  | 'Health'
-  | 'Safety'
-  | 'Events'
-  | 'Permits'
+  | 'general'
+  | 'infrastructure'
+  | 'health'
+  | 'culture'
+  | 'emergency'
 
 export interface Announcement {
   id: string

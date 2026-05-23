@@ -31,14 +31,39 @@ const statusVariant: Record<PermitStatus, 'default' | 'primary' | 'success' | 'w
   'Rejected':               'danger',
 }
 
+const backendStatusByLabel: Record<string, string> = {
+  Submitted: 'submitted',
+  'Document Verification': 'document_verification',
+  'Inspection Scheduled': 'field_inspection_scheduled',
+  Approved: 'approved',
+  Rejected: 'rejected',
+}
+
+const statusLabelByBackend: Record<string, PermitStatus> = {
+  draft: 'Draft',
+  submitted: 'Submitted',
+  document_verification: 'Document Verification',
+  field_inspection_scheduled: 'Inspection Scheduled',
+  inspection_scheduled: 'Inspection Scheduled',
+  approved: 'Approved',
+  rejected: 'Rejected',
+}
+
+function normalizePermitListItem(raw: PermitListItem): PermitListItem {
+  return {
+    ...raw,
+    status: statusLabelByBackend[raw.status] ?? raw.status,
+  }
+}
+
 export default function AdminPermitsPage() {
   const [status, setStatus] = useState('')
 
   const { data: permits, isLoading } = useQuery({
     queryKey: ['permits', 'admin', { status }],
     queryFn: async () => {
-      const { data } = await api.get('/permits', { params: { status: status || undefined } })
-      return data.data as PermitListItem[]
+      const { data } = await api.get('/permits', { params: { status: status ? backendStatusByLabel[status] : undefined } })
+      return (data.data as PermitListItem[]).map(normalizePermitListItem)
     },
   })
 

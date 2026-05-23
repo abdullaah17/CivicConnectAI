@@ -13,6 +13,7 @@ import { ticketSchema, type TicketFormData } from '@/utils/validators'
 import { AISuggest } from '@/components/tickets/AISuggest'
 import { SkeletonCard } from '@/components/common/SkeletonLoader'
 import api from '@/lib/api'
+import { useAuthStore } from '@/store/authStore'
 import dynamic from 'next/dynamic'
 import type { TicketPriority } from '@/types/ticket'
 
@@ -85,6 +86,7 @@ interface TicketFormProps {
 }
 
 export const TicketForm = ({ onSubmit, isSubmitting }: TicketFormProps) => {
+  const { isAuthenticated, _hasHydrated } = useAuthStore()
   const [files, setFiles] = useState<File[]>([])
   const [fileErrors, setFileErrors] = useState<string[]>([])
   const [selectedPriority, setSelectedPriority] = useState<TicketPriority | ''>('')
@@ -98,6 +100,7 @@ export const TicketForm = ({ onSubmit, isSubmitting }: TicketFormProps) => {
     },
     staleTime: 5 * 60 * 1000, // cache for 5 min
     retry: 2,
+    enabled: isAuthenticated && _hasHydrated,
   })
 
   const {
@@ -155,7 +158,7 @@ export const TicketForm = ({ onSubmit, isSubmitting }: TicketFormProps) => {
     await onSubmit(data, files)
   }
 
-  if (deptsLoading) {
+  if (!_hasHydrated || deptsLoading) {
     return <SkeletonCard />
   }
 
