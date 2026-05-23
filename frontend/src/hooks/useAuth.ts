@@ -1,5 +1,4 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useRouter } from 'next/navigation'
 import api from '@/lib/api'
 import { normalizeUser } from '@/lib/normalizers'
 import { useAuthStore } from '@/store/authStore'
@@ -17,7 +16,6 @@ export const useCurrentUser = () =>
 
 export const useLogin = () => {
   const { setAuth } = useAuthStore()
-  const router = useRouter()
 
   return useMutation({
     mutationFn: async (credentials: { identifier: string; password: string; redirectTo?: string }) => {
@@ -36,16 +34,15 @@ export const useLogin = () => {
       if (result.requires2FA) return // caller handles 2FA modal
       if (!result.user || !result.accessToken) return
       setAuth(result.user, result.accessToken)
-      // Honour redirect param from middleware, otherwise route by role
-      if (result.redirectTo) {
-        router.push(result.redirectTo)
-        return
-      }
-      const role = result.user.role
-      if (role === 'staff') router.push('/staff/dashboard')
-      else if (role === 'dept_admin') router.push('/admin/dashboard')
-      else if (role === 'super_admin') router.push('/superadmin/dashboard')
-      else router.push('/dashboard')
+      // Use window.location.href (hard nav) so the cookie is guaranteed to be
+      // present before the next request hits middleware. router.push is a soft
+      // nav and is fine, but being explicit here prevents any timing edge case.
+      const dest = result.redirectTo
+        ?? (result.user.role === 'staff'       ? '/staff/dashboard'
+          : result.user.role === 'dept_admin'  ? '/admin/dashboard'
+          : result.user.role === 'super_admin' ? '/superadmin/dashboard'
+          : '/dashboard')
+      window.location.href = dest
     },
   })
 }
@@ -71,7 +68,6 @@ export const useRegister = () =>
 
 export const useVerifyOTP = () => {
   const { setAuth } = useAuthStore()
-  const router = useRouter()
 
   return useMutation({
     mutationFn: async (payload: { email: string; otp: string }) => {
@@ -84,7 +80,7 @@ export const useVerifyOTP = () => {
     },
     onSuccess: (result) => {
       setAuth(result.user, result.accessToken)
-      router.push('/dashboard')
+      window.location.href = '/dashboard'
     },
   })
 }
