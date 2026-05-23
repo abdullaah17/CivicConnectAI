@@ -6,17 +6,15 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5000/
 export const api = axios.create({
   baseURL: BASE_URL,
   withCredentials: true, // for refresh token cookie
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  // Do NOT set a global Content-Type here.
+  // - JSON requests: axios sets 'application/json' automatically
+  // - FormData requests: axios sets 'multipart/form-data; boundary=...' automatically
+  // A global Content-Type default overrides the multipart boundary and breaks file uploads.
 })
 
 const refreshClient = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  },
 })
 
 // Request interceptor — attach access token
