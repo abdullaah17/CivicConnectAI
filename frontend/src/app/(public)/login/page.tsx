@@ -18,7 +18,7 @@ import toast from 'react-hot-toast'
 import type { User } from '@/types/user'
 
 function LoginForm() {
-  const { login: loginMutation } = { login: useLogin() }
+  const loginMutation = useLogin()
   const { setAuth } = useAuthStore()
   const searchParams = useSearchParams()
   const redirectTo = searchParams.get('redirect') || null
