@@ -53,13 +53,12 @@ export const useAuthStore = create<AuthState>()(
         isAuthenticated: state.isAuthenticated,
       }),
       onRehydrateStorage: () => (state) => {
-        // Set hydration flag directly in the state object to ensure synchronous update
-        if (state) {
-          state._hasHydrated = true
-          // Restore the middleware signal cookie if user is still authenticated
-          if (state.isAuthenticated && typeof document !== 'undefined') {
-            document.cookie = 'civic-auth-signal=1; path=/; SameSite=Lax; max-age=86400'
-          }
+        // Must call set() through the store action — direct mutation does NOT
+        // trigger React re-renders, so components would never see _hasHydrated=true.
+        state?.setHasHydrated(true)
+        // Restore the middleware signal cookie if user is still authenticated
+        if (state?.isAuthenticated && typeof document !== 'undefined') {
+          document.cookie = 'civic-auth-signal=1; path=/; SameSite=Lax; max-age=86400'
         }
       },
     }

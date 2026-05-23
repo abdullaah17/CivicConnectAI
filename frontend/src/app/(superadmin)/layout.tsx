@@ -9,15 +9,17 @@ import { useWebSocket } from '@/hooks/useWebSocket'
 export default function SuperAdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
   const pathname = usePathname()
-  const { isAuthenticated, user, _hasHydrated } = useAuthStore()
+  const { isAuthenticated, user, _hasHydrated, setHasHydrated } = useAuthStore()
   const [mounted, setMounted] = useState(false)
-  
-  // Initialize WebSocket (it handles its own hydration checks)
+
   useWebSocket()
 
   useEffect(() => {
     setMounted(true)
-  }, [])
+    if (!useAuthStore.getState()._hasHydrated) {
+      setHasHydrated(true)
+    }
+  }, [setHasHydrated])
 
   useEffect(() => {
     if (!_hasHydrated || !mounted) return
@@ -27,18 +29,9 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
       return
     }
 
-    if (user?.role === 'resident') {
-      router.push('/dashboard')
-      return
-    }
-    if (user?.role === 'staff') {
-      router.push('/staff/dashboard')
-      return
-    }
-    if (user?.role === 'dept_admin') {
-      router.push('/admin/dashboard')
-      return
-    }
+    if (user?.role === 'resident') { router.push('/dashboard'); return }
+    if (user?.role === 'staff') { router.push('/staff/dashboard'); return }
+    if (user?.role === 'dept_admin') { router.push('/admin/dashboard'); return }
   }, [_hasHydrated, mounted, isAuthenticated, user?.role, pathname, router])
 
   if (!_hasHydrated || !mounted) return null
