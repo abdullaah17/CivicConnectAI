@@ -10,6 +10,8 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
   const router = useRouter()
   const { isAuthenticated, user, _hasHydrated } = useAuthStore()
   const [mounted, setMounted] = useState(false)
+  
+  // Initialize WebSocket (it handles its own hydration checks)
   useWebSocket()
 
   // Wait for both Zustand hydration AND component mount

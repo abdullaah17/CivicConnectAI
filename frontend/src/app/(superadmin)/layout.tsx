@@ -10,6 +10,8 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
   const router = useRouter()
   const { isAuthenticated, user, _hasHydrated } = useAuthStore()
   const [mounted, setMounted] = useState(false)
+  
+  // Initialize WebSocket (it handles its own hydration checks)
   useWebSocket()
 
   useEffect(() => {
