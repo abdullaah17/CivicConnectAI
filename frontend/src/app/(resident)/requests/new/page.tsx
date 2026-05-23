@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { TicketForm } from '@/components/tickets/TicketForm'
 import { useCreateTicket } from '@/hooks/useTickets'
+import { getErrorMessage } from '@/lib/errorHandler'
 import type { TicketFormData } from '@/utils/validators'
 import toast from 'react-hot-toast'
 
@@ -16,8 +17,10 @@ export default function SubmitRequestPage() {
       const ticket = await createTicket.mutateAsync({ ...data, attachments: files })
       toast.success(`Request ${ticket.ticket_number} submitted successfully!`)
       router.push(`/requests/${ticket.id}`)
-    } catch {
-      toast.error('Submission failed. Please try again.')
+    } catch (err: unknown) {
+      // Surface the actual backend error message instead of a generic fallback
+      const msg = getErrorMessage(err, 'Submission failed. Please try again.')
+      toast.error(msg)
     }
   }
 

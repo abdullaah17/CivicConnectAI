@@ -97,6 +97,7 @@ export const TicketForm = ({ onSubmit, isSubmitting }: TicketFormProps) => {
       return data.data as Department[]
     },
     staleTime: 5 * 60 * 1000, // cache for 5 min
+    retry: 2,
   })
 
   const {
@@ -160,9 +161,18 @@ export const TicketForm = ({ onSubmit, isSubmitting }: TicketFormProps) => {
 
   if (deptsError || !departments?.length) {
     return (
-      <p className="text-sm text-danger py-4">
-        Unable to load departments. Please refresh the page and try again.
-      </p>
+      <div className="py-6 text-center space-y-3">
+        <p className="text-sm text-danger">
+          Unable to load departments. Please check your connection and try again.
+        </p>
+        <button
+          type="button"
+          onClick={() => window.location.reload()}
+          className="text-sm text-primary-700 underline hover:text-primary-900"
+        >
+          Reload page
+        </button>
+      </div>
     )
   }
 

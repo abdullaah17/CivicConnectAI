@@ -211,17 +211,29 @@ export const useTicketStats = () => {
 }
 
 // Upload a single attachment file to Cloudinary via the backend
-// Returns the public URL string
+// Returns the public URL string.
+// NOTE: Do NOT set Content-Type manually — axios sets the correct
+// multipart/form-data boundary automatically when given a FormData body.
 async function uploadAttachment(file: File): Promise<string> {
   const fd = new FormData()
   fd.append('file', file)
   const { data } = await api.post<{ data: { url: string; file_url?: string } }>(
     '/tickets/upload',
-    fd,
-    { headers: { 'Content-Type': 'multipart/form-data' } }
+    fd
+    // No explicit Content-Type header — axios handles multipart boundary
   )
   // Backend may return { url } or { file_url }
   return data.data.url ?? data.data.file_url ?? ''
+}
+
+// Slugify a human-readable category label → snake_case for the backend
+// e.g. "Street Lighting" → "street_lighting", "Road Damage" → "road_damage"
+function slugifyCategory(label: string): string {
+  return label
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s]/g, '')   // strip special chars
+    .replace(/\s+/g, '_')           // spaces → underscores
 }
 
 // Create ticket
@@ -232,16 +244,22 @@ export const useCreateTicket = () => {
       const { attachments = [], ...fields } = payload
 
       // Step 1 — upload files in parallel (if any)
+      // Each file is uploaded to Cloudinary via /tickets/upload; URLs are then
+      // passed as attachment_urls[] in the ticket body (Backend PRD §4.3 B-A01)
       const attachmentUrls: string[] = attachments.length
         ? await Promise.all(attachments.map(uploadAttachment))
         : []
 
-      // Step 2 — create ticket with JSON body
+      // Step 2 — build JSON body with backend-expected field shapes
       const body: Record<string, unknown> = {
         ...fields,
-        priority: fields.priority.toLowerCase(), // backend expects lowercase
+        // Backend DB enum is lowercase: 'low' | 'medium' | 'high' | 'emergency'
+        priority: fields.priority.toLowerCase(),
+        // Backend expects snake_case category slug, not human-readable label
+        category: slugifyCategory(fields.category),
       }
       if (attachmentUrls.length) {
+        // Backend PRD §4.3: attachment URLs passed as array field
         body.attachment_urls = attachmentUrls
       }
 

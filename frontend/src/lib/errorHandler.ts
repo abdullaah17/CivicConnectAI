@@ -6,10 +6,12 @@
 import { AxiosError } from 'axios'
 
 export interface ApiErrorResponse {
+  success?: boolean
   error?: {
     message?: string
     code?: string
-    details?: string | Record<string, string>
+    // Backend PRD §2.3: details is an array of field-level errors on validation failures
+    details?: Array<{ field?: string; message: string }> | Record<string, string> | string
   }
   message?: string
   statusCode?: number
@@ -44,8 +46,12 @@ export function getErrorMessage(error: unknown, defaultMessage: string = 'An err
     if (status === 422) {
       // Validation error - extract field-specific errors if available
       const details = data?.error?.details
-      if (typeof details === 'object' && details !== null) {
-        const fieldErrors = Object.entries(details)
+      if (Array.isArray(details) && details.length > 0) {
+        // Backend PRD §2.3: array of { field, message } objects
+        return details.map((d) => (d.field ? `${d.field}: ${d.message}` : d.message)).join('; ')
+      }
+      if (typeof details === 'object' && details !== null && !Array.isArray(details)) {
+        const fieldErrors = Object.entries(details as Record<string, string>)
           .map(([field, message]) => `${field}: ${message}`)
           .join('; ')
         return fieldErrors || 'Validation failed. Please check your input.'
@@ -89,6 +95,15 @@ export function getValidationErrors(error: unknown): Record<string, string> {
     const data = error.response?.data as ApiErrorResponse | undefined
     const details = data?.error?.details
 
+    // Array format: [{ field, message }, ...]
+    if (Array.isArray(details)) {
+      return details.reduce<Record<string, string>>((acc, d) => {
+        if (d.field) acc[d.field] = d.message
+        return acc
+      }, {})
+    }
+
+    // Object format: { field: message }
     if (typeof details === 'object' && details !== null) {
       return details as Record<string, string>
     }
