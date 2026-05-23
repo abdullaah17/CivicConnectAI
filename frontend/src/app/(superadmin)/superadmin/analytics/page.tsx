@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Download } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Button } from '@/components/common/Button'
+import { PermitFunnelChart } from '@/components/analytics/PermitFunnelChart'
 import api from '@/lib/api'
 import toast from 'react-hot-toast'
 
@@ -136,24 +137,30 @@ function AnalyticsContent() {
             ))}
           </div>
 
-          <div className="bg-white rounded-lg p-5 border border-gray-100 shadow-sm mb-6">
-            <h3 className="font-semibold text-gray-900 mb-4">Tickets by Status</h3>
-            <div className="space-y-3">
-              {byStatus.length === 0 && <p className="text-sm text-gray-400">No data for this period.</p>}
-              {byStatus.map((d) => (
-                <div key={d.status}>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="font-medium text-gray-700">{d.status}</span>
-                    <span className="text-gray-500">{d.count} ({total > 0 ? Math.round(d.count / total * 100) : 0}%)</span>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            {/* Tickets by status */}
+            <div className="bg-white rounded-lg p-5 border border-gray-100 shadow-sm">
+              <h3 className="font-semibold text-gray-900 mb-4">Tickets by Status</h3>
+              <div className="space-y-3">
+                {byStatus.length === 0 && <p className="text-sm text-gray-400">No data for this period.</p>}
+                {byStatus.map((d) => (
+                  <div key={d.status}>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="font-medium text-gray-700">{d.status}</span>
+                      <span className="text-gray-500">{d.count} ({total > 0 ? Math.round(d.count / total * 100) : 0}%)</span>
+                    </div>
+                    <div className="w-full bg-gray-100 rounded-full h-2">
+                      <div className="h-2 rounded-full"
+                        style={{ width: `${total > 0 ? (d.count / total) * 100 : 0}%`, backgroundColor: COLOR_MAP[d.status] ?? '#9CA3AF' }}
+                      />
+                    </div>
                   </div>
-                  <div className="w-full bg-gray-100 rounded-full h-2">
-                    <div className="h-2 rounded-full"
-                      style={{ width: `${total > 0 ? (d.count / total) * 100 : 0}%`, backgroundColor: COLOR_MAP[d.status] ?? '#9CA3AF' }}
-                    />
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
+
+            {/* Permit funnel */}
+            <PermitFunnelChart />
           </div>
 
           {Array.isArray(topIssues) && topIssues.length > 0 && (
