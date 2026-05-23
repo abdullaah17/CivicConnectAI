@@ -4,12 +4,15 @@ import { useState, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useDropzone } from 'react-dropzone'
+import { useQuery } from '@tanstack/react-query'
 import { Upload, X, AlertTriangle, Zap, ArrowUp, Minus } from 'lucide-react'
 import { clsx } from 'clsx'
 import { Button } from '@/components/common/Button'
 import { Input, Textarea, Select } from '@/components/common/Input'
 import { ticketSchema, type TicketFormData } from '@/utils/validators'
 import { AISuggest } from '@/components/tickets/AISuggest'
+import { SkeletonCard } from '@/components/common/SkeletonLoader'
+import api from '@/lib/api'
 import dynamic from 'next/dynamic'
 import type { TicketPriority } from '@/types/ticket'
 
@@ -18,17 +21,46 @@ const LocationPicker = dynamic(
   { ssr: false, loading: () => <div className="w-full h-56 rounded-lg border border-gray-200 bg-gray-100 animate-pulse" /> }
 )
 
-// Department → categories mapping
-const DEPARTMENTS = [
-  { id: 'dept-infra', name: 'Infrastructure', icon: '🏗️' },
-  { id: 'dept-permits', name: 'Permits & Licensing', icon: '📋' },
-  { id: 'dept-health', name: 'Health & Sanitation', icon: '🏥' },
-]
+interface Department {
+  id: string
+  name: string
+  code: string
+}
 
-const CATEGORIES: Record<string, string[]> = {
-  'dept-infra': ['Street Lighting', 'Road Damage', 'Water Supply', 'Sewage', 'Parks & Recreation', 'Other'],
-  'dept-permits': ['Construction Permit', 'Event Permit', 'Business License', 'Signage Permit', 'Other'],
-  'dept-health': ['Waste Collection', 'Pest Control', 'Food Safety', 'Water Quality', 'Other'],
+// Categories keyed by department name (case-insensitive match)
+const CATEGORIES_BY_NAME: Record<string, string[]> = {
+  'infrastructure':       ['Street Lighting', 'Road Damage', 'Water Supply', 'Sewage', 'Parks & Recreation', 'Other'],
+  'permits & licensing':  ['Construction Permit', 'Event Permit', 'Business License', 'Signage Permit', 'Other'],
+  'health & sanitation':  ['Waste Collection', 'Pest Control', 'Food Safety', 'Water Quality', 'Other'],
+  'public safety':        ['Traffic', 'Street Crime', 'Fire Hazard', 'Noise Complaint', 'Other'],
+  'environment':          ['Air Quality', 'Illegal Dumping', 'Tree Removal', 'Flooding', 'Other'],
+  'education':            ['School Facility', 'Transport', 'Curriculum', 'Other'],
+}
+
+// Fallback categories for any department not in the map above
+const DEFAULT_CATEGORIES = ['General Complaint', 'Service Request', 'Maintenance', 'Emergency', 'Other']
+
+function getCategoriesForDept(deptName: string): string[] {
+  const key = deptName.toLowerCase()
+  // Exact match first
+  if (CATEGORIES_BY_NAME[key]) return CATEGORIES_BY_NAME[key]
+  // Partial match
+  const partial = Object.keys(CATEGORIES_BY_NAME).find((k) => key.includes(k) || k.includes(key))
+  return partial ? CATEGORIES_BY_NAME[partial] : DEFAULT_CATEGORIES
+}
+
+// Department icons by name keyword
+function getDeptIcon(name: string): string {
+  const n = name.toLowerCase()
+  if (n.includes('infra') || n.includes('road') || n.includes('public works')) return '🏗️'
+  if (n.includes('permit') || n.includes('licens')) return '📋'
+  if (n.includes('health') || n.includes('sanit')) return '🏥'
+  if (n.includes('safety') || n.includes('police') || n.includes('fire')) return '🚨'
+  if (n.includes('environ') || n.includes('green')) return '🌿'
+  if (n.includes('edu') || n.includes('school')) return '🎓'
+  if (n.includes('water')) return '💧'
+  if (n.includes('transport') || n.includes('traffic')) return '🚦'
+  return '🏛️'
 }
 
 const PRIORITIES: { value: TicketPriority; label: string; description: string; icon: React.ReactNode; color: string }[] = [
@@ -57,6 +89,16 @@ export const TicketForm = ({ onSubmit, isSubmitting }: TicketFormProps) => {
   const [fileErrors, setFileErrors] = useState<string[]>([])
   const [selectedPriority, setSelectedPriority] = useState<TicketPriority | ''>('')
 
+  // Fetch real departments from the backend
+  const { data: departments, isLoading: deptsLoading, isError: deptsError } = useQuery({
+    queryKey: ['departments'],
+    queryFn: async () => {
+      const { data } = await api.get('/departments')
+      return data.data as Department[]
+    },
+    staleTime: 5 * 60 * 1000, // cache for 5 min
+  })
+
   const {
     register,
     handleSubmit,
@@ -67,7 +109,11 @@ export const TicketForm = ({ onSubmit, isSubmitting }: TicketFormProps) => {
     resolver: zodResolver(ticketSchema),
   })
 
-  const selectedDept = watch('department_id')
+  const selectedDeptId = watch('department_id')
+  const selectedDept = departments?.find((d) => d.id === selectedDeptId)
+  const categoryOptions = selectedDept
+    ? getCategoriesForDept(selectedDept.name).map((c) => ({ value: c, label: c }))
+    : []
 
   const onDrop = useCallback((accepted: File[], rejected: import('react-dropzone').FileRejection[]) => {
     const newErrors: string[] = []
@@ -108,9 +154,17 @@ export const TicketForm = ({ onSubmit, isSubmitting }: TicketFormProps) => {
     await onSubmit(data, files)
   }
 
-  const categoryOptions = selectedDept
-    ? (CATEGORIES[selectedDept] || []).map((c) => ({ value: c, label: c }))
-    : []
+  if (deptsLoading) {
+    return <SkeletonCard />
+  }
+
+  if (deptsError || !departments?.length) {
+    return (
+      <p className="text-sm text-danger py-4">
+        Unable to load departments. Please refresh the page and try again.
+      </p>
+    )
+  }
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6" noValidate>
@@ -120,13 +174,13 @@ export const TicketForm = ({ onSubmit, isSubmitting }: TicketFormProps) => {
           Department <span className="text-danger" aria-hidden="true">*</span>
         </legend>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {DEPARTMENTS.map((dept) => (
+          {departments.map((dept) => (
             <label
               key={dept.id}
               className={clsx(
                 'flex items-center gap-3 p-3 rounded border-2 cursor-pointer transition-colors',
                 'hover:border-primary-500 min-h-[44px]',
-                selectedDept === dept.id
+                selectedDeptId === dept.id
                   ? 'border-primary-700 bg-primary-50'
                   : 'border-gray-200 bg-white'
               )}
@@ -136,12 +190,12 @@ export const TicketForm = ({ onSubmit, isSubmitting }: TicketFormProps) => {
                 value={dept.id}
                 {...register('department_id')}
                 onChange={() => {
-                  setValue('department_id', dept.id)
+                  setValue('department_id', dept.id, { shouldValidate: true })
                   setValue('category', '')
                 }}
                 className="sr-only"
               />
-              <span className="text-xl" aria-hidden="true">{dept.icon}</span>
+              <span className="text-xl" aria-hidden="true">{getDeptIcon(dept.name)}</span>
               <span className="text-sm font-medium text-gray-700">{dept.name}</span>
             </label>
           ))}
@@ -187,10 +241,10 @@ export const TicketForm = ({ onSubmit, isSubmitting }: TicketFormProps) => {
         required
         options={categoryOptions}
         value={watch('category') || ''}
-        onChange={(v) => setValue('category', v)}
-        disabled={!selectedDept}
+        onChange={(v) => setValue('category', v, { shouldValidate: true })}
+        disabled={!selectedDeptId}
         error={errors.category?.message}
-        helperText={!selectedDept ? 'Select a department first' : undefined}
+        helperText={!selectedDeptId ? 'Select a department first' : undefined}
       />
 
       {/* Location */}
@@ -230,7 +284,7 @@ export const TicketForm = ({ onSubmit, isSubmitting }: TicketFormProps) => {
                 value={p.value}
                 {...register('priority')}
                 onChange={() => {
-                  setValue('priority', p.value)
+                  setValue('priority', p.value, { shouldValidate: true })
                   setSelectedPriority(p.value)
                 }}
                 className="sr-only"

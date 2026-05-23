@@ -1,0 +1,26 @@
+All 4 bonus features — done ✅
+1. Dark Mode
+
+Full dark token set added to tokens.css — every color, surface, border, and text token has a dark variant under [data-theme='dark']
+uiStore now persists the theme choice to localStorage and applies data-theme to <html> on load and on toggle
+Sun/Moon toggle button added to the Navbar — visible on every page for all roles
+
+2. AI Request Categorization
+
+New AISuggest component in TicketForm — appears after the description field
+Activates once the description hits 20+ characters, calls POST /api/v1/ai/categorize
+Returns suggested department + category + confidence level (high/medium/low) + reasoning
+Resident can hit "Apply Suggestion" to auto-fill both fields, or ignore it
+Gracefully falls back if the AI endpoint is unavailable
+
+3. Map / Leaflet Integration (two surfaces)
+
+LocationPicker in the ticket submission form — interactive Islamabad-centered map, click to drop a pin, reverse-geocodes via Nominatim (free, no API key) and auto-fills the location field
+ComplaintHeatmap on both admin and superadmin analytics pages — renders complaint clusters as color-coded circles (green/amber/red by intensity), falls back to demo data 
+if the backend hasn't returned real coordinates yet
+
+4. PDF Export
+
+exportAnalyticsPDF util using jsPDF + html2canvas (already installed)
+Both analytics pages now have a PDF button alongside the existing CSV button
+Captures the entire dashboard div (KPIs + charts + heatmap + top issues table) into a multi-page A4 PDF with a header showing the report title and generation timestamp

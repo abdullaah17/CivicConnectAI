@@ -28,12 +28,14 @@ export interface Event {
   title: string
   description: string
   category: string
-  date: string
-  time: string
+  // Normalized fields (from backend camelCase → snake_case)
+  date: string          // normalized from eventDate
+  time: string          // extracted from eventDate
   location: string
   capacity: number
-  registered_count: number
-  is_registered: boolean
+  registered_count: number   // normalized from _count.registrations
+  is_registered: boolean     // set by normalization (requires auth context)
+  is_cancelled: boolean      // normalized from isCancelled
   organizer: {
     id: string
     name: string

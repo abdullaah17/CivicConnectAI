@@ -116,7 +116,7 @@ export default function AdminTicketDetailPage() {
         <h2 className="font-semibold text-gray-900 mb-2">Description</h2>
         <p className="text-sm text-gray-700 whitespace-pre-wrap">{ticket.description}</p>
         <div className="mt-3 pt-3 border-t border-gray-100 text-sm text-gray-600">
-          <span className="font-medium">Submitted by:</span> {ticket.submitted_by.name} ({ticket.submitted_by.email})
+          <span className="font-medium">Submitted by:</span> {ticket.submitted_by?.name} ({ticket.submitted_by?.email})
         </div>
         {ticket.assigned_to && (
           <div className="mt-1 text-sm text-gray-600">
@@ -171,7 +171,7 @@ export default function AdminTicketDetailPage() {
       </div>
 
       {/* Attachments */}
-      {ticket.attachments.length > 0 && (
+      {(ticket.attachments?.length ?? 0) > 0 && (
         <div className="bg-white rounded-lg shadow-card border border-gray-100 p-5 mb-4">
           <AttachmentGallery attachments={ticket.attachments} />
         </div>

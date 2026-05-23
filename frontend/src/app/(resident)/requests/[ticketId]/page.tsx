@@ -14,7 +14,8 @@ import { MapPin, Calendar } from 'lucide-react'
 import toast from 'react-hot-toast'
 
 export default function TicketDetailPage() {
-  const { ticketId } = useParams<{ ticketId: string }>()
+  const params = useParams<{ ticketId: string }>()
+  const ticketId = Array.isArray(params?.ticketId) ? params.ticketId[0] : (params?.ticketId ?? '')
   const { data: ticket, isLoading } = useTicket(ticketId)
   const addComment = useAddComment(ticketId)
 
@@ -87,7 +88,7 @@ export default function TicketDetailPage() {
       </div>
 
       {/* Attachments */}
-      {ticket.attachments.length > 0 && (
+      {(ticket.attachments?.length ?? 0) > 0 && (
         <div className="bg-white rounded-lg shadow-card border border-gray-100 p-5 mb-4">
           <AttachmentGallery attachments={ticket.attachments} />
         </div>

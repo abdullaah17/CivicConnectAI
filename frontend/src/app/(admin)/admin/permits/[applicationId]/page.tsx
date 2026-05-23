@@ -86,8 +86,8 @@ export default function AdminPermitReviewPage() {
         </div>
 
         <div className="border-t border-gray-100 pt-3 text-sm space-y-1">
-          <p><span className="text-gray-500">Applicant:</span> <span className="font-medium">{permit.applicant.name}</span></p>
-          <p><span className="text-gray-500">Email:</span> <span className="font-medium">{permit.applicant.email}</span></p>
+          <p><span className="text-gray-500">Applicant:</span> <span className="font-medium">{permit.applicant?.name}</span></p>
+          <p><span className="text-gray-500">Email:</span> <span className="font-medium">{permit.applicant?.email}</span></p>
           <p><span className="text-gray-500">Type:</span> <span className="font-medium capitalize">{permit.permit_type.replace('_', ' ')}</span></p>
         </div>
       </div>
@@ -108,7 +108,7 @@ export default function AdminPermitReviewPage() {
       )}
 
       {/* Documents */}
-      {permit.documents.length > 0 && (
+      {(permit.documents?.length ?? 0) > 0 && (
         <div className="bg-white rounded-lg shadow-card border border-gray-100 p-5 mb-4">
           <h3 className="font-semibold text-gray-900 mb-3">Submitted Documents</h3>
           <div className="space-y-2">
@@ -124,7 +124,7 @@ export default function AdminPermitReviewPage() {
       )}
 
       {/* Fee */}
-      {permit.fee_breakdown?.length > 0 && (
+      {(permit.fee_breakdown?.length ?? 0) > 0 && (
         <div className="mb-4">
           <FeeCalculator breakdown={permit.fee_breakdown} total={permit.total_fee} />
         </div>

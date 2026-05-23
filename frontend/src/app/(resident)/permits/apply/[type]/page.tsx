@@ -40,9 +40,11 @@ type Step1Data = z.infer<typeof step1Schema>
 type Step2Data = z.infer<typeof step2Schema>
 
 export default function PermitApplicationPage() {
-  const { type } = useParams<{ type: string }>()
+  const params = useParams<{ type: string }>()
+  const rawType = Array.isArray(params?.type) ? params.type[0] : (params?.type ?? '')
   const router = useRouter()
-  const permitType = type as PermitType
+  const permitType = rawType as PermitType
+  const isValidType = rawType in permitLabels
   const createPermit = useCreatePermit()
 
   const [docs, setDocs] = useState<File[]>([])
@@ -53,6 +55,15 @@ export default function PermitApplicationPage() {
 
   const venueType = form2.watch('venue_type')
   const crowdSize = form1.watch('crowd_size') || 0
+
+  // Guard against invalid permit type
+  if (!isValidType) {
+    return (
+      <div className="text-center py-16">
+        <p className="text-gray-500">Invalid permit type. Please go back and select a valid permit.</p>
+      </div>
+    )
+  }
 
   // Fee calculation (client-side preview)
   const baseFee = 5000

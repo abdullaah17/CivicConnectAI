@@ -12,7 +12,8 @@ import { clsx } from 'clsx'
 import toast from 'react-hot-toast'
 
 export default function EventDetailPage() {
-  const { eventId } = useParams<{ eventId: string }>()
+  const params = useParams<{ eventId: string }>()
+  const eventId = Array.isArray(params?.eventId) ? params.eventId[0] : (params?.eventId ?? '')
   const router = useRouter()
   const { data: event, isLoading } = useEvent(eventId)
   const register = useRegisterForEvent(eventId)
@@ -90,7 +91,7 @@ export default function EventDetailPage() {
         </div>
 
         <div className="text-xs text-gray-400">
-          Organised by {event.organizer.name} · {event.organizer.department}
+          Organised by {event.organizer?.name ?? 'City'} · {event.organizer?.department ?? ''}
         </div>
 
         {/* Actions */}

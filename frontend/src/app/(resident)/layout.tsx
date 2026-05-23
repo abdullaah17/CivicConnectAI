@@ -8,10 +8,11 @@ import { useWebSocket } from '@/hooks/useWebSocket'
 
 export default function ResidentLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
-  const { isAuthenticated, user } = useAuthStore()
+  const { isAuthenticated, user, _hasHydrated } = useAuthStore()
   useWebSocket()
 
   useEffect(() => {
+    if (!_hasHydrated) return
     if (!isAuthenticated) {
       router.push('/login')
       return
@@ -20,8 +21,9 @@ export default function ResidentLayout({ children }: { children: React.ReactNode
     if (user?.role === 'staff') router.push('/staff/dashboard')
     else if (user?.role === 'dept_admin') router.push('/admin/dashboard')
     else if (user?.role === 'super_admin') router.push('/superadmin/dashboard')
-  }, [isAuthenticated, user, router])
+  }, [_hasHydrated, isAuthenticated, user, router])
 
+  if (!_hasHydrated) return null
   if (!isAuthenticated || user?.role !== 'resident') return null
 
   return <AppShell role="resident">{children}</AppShell>

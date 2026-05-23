@@ -56,19 +56,19 @@ export const CommentThread = ({ comments, onAddComment, isSubmitting }: CommentT
           >
             {/* Avatar */}
             <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
-              {comment.author.profile_photo_url ? (
+              {comment.author?.profile_photo_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={comment.author.profile_photo_url} alt={comment.author.name} className="w-full h-full object-cover" />
+                <img src={comment.author.profile_photo_url} alt={comment.author?.name ?? 'User'} className="w-full h-full object-cover" />
               ) : (
                 <span className="text-xs font-bold text-primary-700">
-                  {comment.author.name.charAt(0).toUpperCase()}
+                  {comment.author?.name?.charAt(0)?.toUpperCase() ?? '?'}
                 </span>
               )}
             </div>
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap mb-1">
-                <span className="text-sm font-semibold text-gray-900">{comment.author.name}</span>
+                <span className="text-sm font-semibold text-gray-900">{comment.author?.name ?? 'Unknown'}</span>
                 {comment.is_internal && (
                   <Badge variant="warning">
                     <Lock className="w-3 h-3 mr-1" aria-hidden="true" />

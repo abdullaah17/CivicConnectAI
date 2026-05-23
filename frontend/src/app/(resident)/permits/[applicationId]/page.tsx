@@ -21,7 +21,8 @@ const statusVariant: Record<PermitStatus, 'default' | 'primary' | 'success' | 'w
 }
 
 export default function PermitDetailPage() {
-  const { applicationId } = useParams<{ applicationId: string }>()
+  const params = useParams<{ applicationId: string }>()
+  const applicationId = Array.isArray(params?.applicationId) ? params.applicationId[0] : (params?.applicationId ?? '')
   const { data: permit, isLoading } = usePermit(applicationId)
 
   if (isLoading) return <div className="max-w-2xl space-y-4"><SkeletonCard /><SkeletonCard /></div>
@@ -91,7 +92,7 @@ export default function PermitDetailPage() {
       </div>
 
       {/* Documents */}
-      {permit.documents.length > 0 && (
+      {(permit.documents?.length ?? 0) > 0 && (
         <div className="bg-white rounded-lg shadow-card border border-gray-100 p-5 mb-4">
           <h3 className="font-semibold text-gray-900 mb-3">Submitted Documents</h3>
           <div className="space-y-2">
@@ -112,7 +113,7 @@ export default function PermitDetailPage() {
       )}
 
       {/* Fee breakdown */}
-      {permit.fee_breakdown?.length > 0 && (
+      {(permit.fee_breakdown?.length ?? 0) > 0 && (
         <div className="mb-4">
           <FeeCalculator breakdown={permit.fee_breakdown} total={permit.total_fee} />
         </div>

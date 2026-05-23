@@ -81,7 +81,7 @@ export default function NotificationsPage() {
                 !notif.is_read && 'bg-primary-50'
               )}
             >
-              <span className="mt-0.5 flex-shrink-0" aria-hidden="true">{typeIcons[notif.type]}</span>
+              <span className="mt-0.5 flex-shrink-0" aria-hidden="true">{typeIcons[notif.type] ?? <Bell className="w-4 h-4 text-gray-400" />}</span>
               <div className="flex-1 min-w-0">
                 <p className={clsx('text-sm text-gray-800', !notif.is_read && 'font-medium')}>
                   {notif.message}
