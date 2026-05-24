@@ -18,10 +18,10 @@ const STATUS_OPTIONS = [
 
 const PRIORITY_OPTIONS = [
   { value: '', label: 'All Priorities' },
-  { value: 'Emergency', label: 'Emergency' },
-  { value: 'High', label: 'High' },
-  { value: 'Medium', label: 'Medium' },
-  { value: 'Low', label: 'Low' },
+  { value: 'emergency', label: 'Emergency' },
+  { value: 'high', label: 'High' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'low', label: 'Low' },
 ]
 
 export default function StaffTicketQueuePage() {

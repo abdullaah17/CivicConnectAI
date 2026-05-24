@@ -34,7 +34,11 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
     if (user?.role === 'super_admin') { router.push('/superadmin/dashboard'); return }
   }, [_hasHydrated, mounted, isAuthenticated, user?.role, pathname, router])
 
-  if (!_hasHydrated || !mounted) return null
+  if (!_hasHydrated || !mounted) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+    </div>
+  )
   if (!isAuthenticated || user?.role !== 'staff') return null
 
   return <AppShell role="staff">{children}</AppShell>
