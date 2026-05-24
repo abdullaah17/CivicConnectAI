@@ -12,6 +12,7 @@ router.use(authenticate);
 
 // Order matters - specific paths before :id
 router.get('/my',              authorize(['resident']),                                    asyncHandler(ctrl.myTickets));
+router.get('/my-stats',        authorize(['resident']),                                    asyncHandler(ctrl.getResidentStats));
 router.get('/stats',           authorize(['staff','dept_admin','super_admin']),            asyncHandler(ctrl.getStats));
 router.post('/upload',         authorize(['resident']), upload.single('file'),             asyncHandler(ctrl.uploadAttachment));
 router.get('/',                enforceDeptScope,                                           asyncHandler(ctrl.listTickets));

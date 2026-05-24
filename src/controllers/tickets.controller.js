@@ -232,6 +232,25 @@ async function myTickets(req, res) {
   return listTickets(req, res);
 }
 
+// GET /tickets/my-stats  (resident only — counts only their own tickets)
+async function getResidentStats(req, res) {
+  const prisma = getPrisma();
+  const userId = req.user.sub;   // JWT stores userId as 'sub'
+
+  const [total, open, inProgress, resolved, closed] = await Promise.all([
+    prisma.ticket.count({ where: { residentId: userId } }),
+    prisma.ticket.count({ where: { residentId: userId, status: 'submitted' } }),
+    prisma.ticket.count({ where: { residentId: userId, status: 'in_progress' } }),
+    prisma.ticket.count({ where: { residentId: userId, status: 'resolved' } }),
+    prisma.ticket.count({ where: { residentId: userId, status: 'closed' } }),
+  ]);
+
+  return res.status(200).json({
+    success: true,
+    data: { total, open, in_progress: inProgress, resolved, closed },
+  });
+}
+
 // GET /tickets/stats
 async function getStats(req, res) {
   const prisma = getPrisma();
@@ -248,4 +267,4 @@ async function getStats(req, res) {
   return res.status(200).json({ success: true, data: { total, by_status: statusMap } });
 }
 
-module.exports = { listTickets, createTicket, getTicket, updateStatus, assignTicket, getComments, addComment, getHistory, getAttachments, uploadAttachment, myTickets, getStats };
+module.exports = { listTickets, createTicket, getTicket, updateStatus, assignTicket, getComments, addComment, getHistory, getAttachments, uploadAttachment, myTickets, getStats, getResidentStats };
