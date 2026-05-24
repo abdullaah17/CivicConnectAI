@@ -44,6 +44,7 @@ export default function MyTicketsPage() {
   return (
     <div>
       <PageHeader
+        variant="dark"
         title="My Requests"
         subtitle="Track all your submitted civic requests."
         breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'My Requests' }]}
@@ -76,6 +77,7 @@ export default function MyTicketsPage() {
         <SkeletonList count={6} />
       ) : !data?.tickets?.length ? (
         <EmptyState
+          variant="dark"
           icon={<Ticket className="w-12 h-12" />}
           title="No requests found"
           description={status || priority ? 'Try adjusting your filters.' : 'You haven\'t submitted any requests yet.'}
@@ -101,7 +103,7 @@ export default function MyTicketsPage() {
               >
                 Previous
               </Button>
-              <span className="text-sm text-gray-500">
+              <span className="text-sm text-white/70">
                 Page {page} of {Math.ceil(data.total / 12)}
               </span>
               <Button

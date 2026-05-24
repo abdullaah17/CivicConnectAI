@@ -47,13 +47,14 @@ export default function PermitPortalPage() {
   return (
     <div>
       <PageHeader
+        variant="dark"
         title="Permit Portal"
         subtitle="Apply for city permits and track your applications."
         breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Permits' }]}
       />
 
       {/* Permit type cards */}
-      <h2 className="font-display font-semibold text-gray-900 text-lg mb-4">Apply for a Permit</h2>
+      <h2 className="font-display font-semibold text-white text-lg mb-4">Apply for a Permit</h2>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
         {(Object.entries(permitTypeConfig) as [PermitType, typeof permitTypeConfig[PermitType]][]).map(([type, config]) => (
           <div key={type} className="bg-white rounded-lg shadow-card border border-gray-100 p-5 flex flex-col">
@@ -73,11 +74,12 @@ export default function PermitPortalPage() {
       </div>
 
       {/* My applications */}
-      <h2 className="font-display font-semibold text-gray-900 text-lg mb-4">My Applications</h2>
+      <h2 className="font-display font-semibold text-white text-lg mb-4">My Applications</h2>
       {isLoading ? (
         <SkeletonList count={3} />
       ) : !permits?.length ? (
         <EmptyState
+          variant="dark"
           icon={<FileText className="w-12 h-12" />}
           title="No applications yet"
           description="Your permit applications will appear here."

@@ -27,6 +27,7 @@ export default function SubmitRequestPage() {
   return (
     <div className="max-w-2xl">
       <PageHeader
+        variant="dark"
         title="Report an Issue"
         subtitle="Describe the civic issue and we'll route it to the right department."
         breadcrumbs={[

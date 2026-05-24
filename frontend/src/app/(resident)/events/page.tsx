@@ -17,6 +17,7 @@ export default function EventBoardPage() {
   return (
     <div>
       <PageHeader
+        variant="dark"
         title="Event Board"
         subtitle="Community events and city programs."
         breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Events' }]}
@@ -26,6 +27,7 @@ export default function EventBoardPage() {
         <SkeletonList count={4} />
       ) : !events?.length ? (
         <EmptyState
+          variant="dark"
           icon={<Calendar className="w-12 h-12" />}
           title="No upcoming events"
           description="Check back later for community events and programs."

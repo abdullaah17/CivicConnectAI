@@ -47,6 +47,7 @@ export default function AnnouncementsPage() {
   return (
     <div>
       <PageHeader
+        variant="dark"
         title="Announcements"
         subtitle="Stay informed about city updates and notices."
         breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Announcements' }]}
@@ -61,6 +62,7 @@ export default function AnnouncementsPage() {
         <SkeletonList count={4} />
       ) : !announcements?.length ? (
         <EmptyState
+          variant="dark"
           icon={<Megaphone className="w-12 h-12" />}
           title="No announcements"
           description="There are no announcements matching your filters."
