@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
+import { samplePermits, shouldUseSampleData } from '@/utils/sampleData'
 import type { PermitApplication, PermitListItem, PermitStatus, PermitType, PermitTypeInfo } from '@/types/permit'
 
 const PERMIT_STATUS_MAP: Record<string, PermitStatus> = {
@@ -77,6 +78,11 @@ export const useMyPermits = () => {
   return useQuery({
     queryKey: ['permits', 'mine'],
     queryFn: async () => {
+      // Use sample data if API is not available
+      if (shouldUseSampleData()) {
+        return samplePermits.map(normalizePermitListItem)
+      }
+
       const { data } = await api.get<{ data: PermitListItem[] }>('/permits')
       return data.data.map(normalizePermitListItem)
     },

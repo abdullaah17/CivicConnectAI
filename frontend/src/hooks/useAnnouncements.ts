@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import api from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
+import { sampleAnnouncements, sampleEvents, shouldUseSampleData } from '@/utils/sampleData'
 import type { Announcement, Event, Notification } from '@/types/announcement'
 
 interface AnnouncementFilters {
@@ -95,6 +96,21 @@ export const useAnnouncements = (filters: AnnouncementFilters = {}) => {
   return useQuery({
     queryKey: ['announcements', filters],
     queryFn: async () => {
+      // Use sample data if API is not available
+      if (shouldUseSampleData()) {
+        let filteredAnnouncements = [...sampleAnnouncements]
+        
+        // Apply filters
+        if (filters.category) {
+          filteredAnnouncements = filteredAnnouncements.filter(a => a.category === filters.category)
+        }
+        if (filters.priority) {
+          filteredAnnouncements = filteredAnnouncements.filter(a => a.priority === filters.priority)
+        }
+        
+        return filteredAnnouncements.map(normalizeAnnouncement)
+      }
+
       const { data } = await api.get<{ data: unknown[] }>('/announcements', { params: filters })
       return (data.data ?? []).map(normalizeAnnouncement)
     },
@@ -119,6 +135,18 @@ export const useEvents = (filters: { category?: string; date_from?: string; date
   return useQuery({
     queryKey: ['events', filters],
     queryFn: async () => {
+      // Use sample data if API is not available
+      if (shouldUseSampleData()) {
+        let filteredEvents = [...sampleEvents]
+        
+        // Apply filters
+        if (filters.category) {
+          filteredEvents = filteredEvents.filter(e => e.category === filters.category)
+        }
+        
+        return filteredEvents.map(normalizeEvent)
+      }
+
       const { data } = await api.get<{ data: unknown[] }>('/events', { params: filters })
       return (data.data ?? []).map(normalizeEvent)
     },

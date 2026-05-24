@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { isAxiosError } from 'axios'
 import api from '@/lib/api'
 import { useAuthStore } from '@/store/authStore'
+import { sampleTickets, sampleStats, shouldUseSampleData } from '@/utils/sampleData'
 import type { Ticket, TicketListItem, TicketStats, CreateTicketPayload, TicketStatus, TicketPriority } from '@/types/ticket'
 
 // ─── Backend → Frontend normalizers ──────────────────────────────────────────
@@ -156,6 +157,35 @@ export const useMyTickets = (filters: TicketFilters = {}) => {
   return useQuery({
     queryKey: ['tickets', filters],
     queryFn: async () => {
+      // Use sample data if API is not available
+      if (shouldUseSampleData()) {
+        const limit = filters.limit || 10
+        const page = filters.page || 1
+        const startIndex = (page - 1) * limit
+        const endIndex = startIndex + limit
+        
+        let filteredTickets = [...sampleTickets]
+        
+        // Apply filters
+        if (filters.status) {
+          const normalizedStatus = normalizeStatus(filters.status)
+          filteredTickets = filteredTickets.filter(t => t.status === normalizedStatus)
+        }
+        if (filters.priority) {
+          const normalizedPriority = normalizePriority(filters.priority)
+          filteredTickets = filteredTickets.filter(t => t.priority === normalizedPriority)
+        }
+        
+        const paginatedTickets = filteredTickets.slice(startIndex, endIndex)
+        
+        return {
+          tickets: paginatedTickets,
+          total: filteredTickets.length,
+          page,
+          limit
+        }
+      }
+
       const { data } = await api.get<{ data: PaginatedTickets }>('/tickets', { params: normalizeTicketFilters(filters) })
       const raw = data.data
       return {
@@ -221,6 +251,11 @@ export const useTicketStats = () => {
   return useQuery({
     queryKey: ['tickets', 'stats'],
     queryFn: async () => {
+      // Use sample data if API is not available
+      if (shouldUseSampleData()) {
+        return sampleStats
+      }
+
       const endpoint = user?.role === 'resident' ? '/tickets/my-stats' : '/tickets/stats'
       const { data } = await api.get<{ data: TicketStats }>(endpoint)
       return data.data

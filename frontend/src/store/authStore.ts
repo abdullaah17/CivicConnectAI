@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { sampleUser, shouldUseSampleData } from '@/utils/sampleData'
 import type { User } from '@/types/user'
 
 interface AuthState {
@@ -56,6 +57,12 @@ export const useAuthStore = create<AuthState>()(
         // Must call set() through the store action — direct mutation does NOT
         // trigger React re-renders, so components would never see _hasHydrated=true.
         state?.setHasHydrated(true)
+        
+        // Auto-authenticate with sample data if enabled and not already authenticated
+        if (shouldUseSampleData() && !state?.isAuthenticated) {
+          state?.setAuth(sampleUser, 'sample-token')
+        }
+        
         // Restore the middleware signal cookie if user is still authenticated
         if (state?.isAuthenticated && typeof document !== 'undefined') {
           document.cookie = 'civic-auth-signal=1; path=/; SameSite=Lax; max-age=86400'
