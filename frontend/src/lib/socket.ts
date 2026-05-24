@@ -9,9 +9,12 @@ export const initializeSocket = (token: string): Socket => {
 
   socket = io(SOCKET_URL, {
     auth: { token },
-    transports: ['websocket', 'polling'],
+    // polling first — lets Render wake up before attempting the WebSocket
+    // upgrade. Socket.io upgrades automatically once the connection is stable.
+    transports: ['polling', 'websocket'],
+    reconnection: true,
     reconnectionAttempts: 5,
-    reconnectionDelay: 1000,
+    reconnectionDelay: 2000,
     reconnectionDelayMax: 30000,
   })
 
