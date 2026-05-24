@@ -15,6 +15,7 @@ import {
   Radio,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { isNavActive } from '@/lib/navUtils'
 import type { UserRole } from '@/types/user'
 
 const MOBILE_LABEL_WIDTH = 72
@@ -90,8 +91,7 @@ export function BottomNavBar({ role, className }: BottomNavBarProps) {
     >
       {navItems.map((item) => {
         const Icon = item.icon
-        const isActive =
-          pathname === item.href || pathname.startsWith(item.href + '/')
+        const isActive = isNavActive(item.href, pathname, navItems)
 
         return (
           <motion.button
