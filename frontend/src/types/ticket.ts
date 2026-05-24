@@ -6,7 +6,7 @@ export type TicketStatus =
   | 'Resolved'
   | 'Closed'
 
-export type TicketPriority = 'Low' | 'Medium' | 'High' | 'Emergency'
+export type TicketPriority = 'low' | 'medium' | 'high' | 'emergency'
 
 export interface Attachment {
   id: string

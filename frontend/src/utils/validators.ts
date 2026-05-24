@@ -74,7 +74,7 @@ export const ticketSchema = z.object({
     .string()
     .min(5, 'Location must be at least 5 characters')
     .max(300, 'Location must be at most 300 characters'),
-  priority: z.enum(['Low', 'Medium', 'High', 'Emergency'], {
+  priority: z.enum(['low', 'medium', 'high', 'emergency'], {
     required_error: 'Please select a priority',
   }),
 })

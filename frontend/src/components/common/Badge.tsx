@@ -12,10 +12,10 @@ const statusConfig: Record<TicketStatus, { label: string; className: string }> =
 }
 
 const priorityConfig: Record<TicketPriority, { label: string; className: string }> = {
-  Low:       { label: 'Low',       className: 'bg-gray-100 text-gray-600' },
-  Medium:    { label: 'Medium',    className: 'bg-blue-100 text-blue-700' },
-  High:      { label: 'High',      className: 'bg-amber-100 text-amber-700' },
-  Emergency: { label: 'Emergency', className: 'bg-danger-bg text-danger' },
+  low:       { label: 'Low',       className: 'bg-gray-100 text-gray-600' },
+  medium:    { label: 'Medium',    className: 'bg-blue-100 text-blue-700' },
+  high:      { label: 'High',      className: 'bg-amber-100 text-amber-700' },
+  emergency: { label: 'Emergency', className: 'bg-danger-bg text-danger' },
 }
 
 interface StatusBadgeProps {

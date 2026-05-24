@@ -65,10 +65,10 @@ function getDeptIcon(name: string): string {
 }
 
 const PRIORITIES: { value: TicketPriority; label: string; description: string; icon: React.ReactNode; color: string }[] = [
-  { value: 'Low',       label: 'Low',       description: 'Non-urgent, can wait',       icon: <Minus className="w-4 h-4" />,         color: 'border-gray-300 text-gray-600' },
-  { value: 'Medium',    label: 'Medium',    description: 'Needs attention soon',        icon: <ArrowUp className="w-4 h-4" />,        color: 'border-blue-300 text-blue-600' },
-  { value: 'High',      label: 'High',      description: 'Urgent, affects daily life',  icon: <AlertTriangle className="w-4 h-4" />,  color: 'border-amber-400 text-amber-600' },
-  { value: 'Emergency', label: 'Emergency', description: 'Immediate danger or hazard',  icon: <Zap className="w-4 h-4" />,            color: 'border-danger text-danger' },
+  { value: 'low',       label: 'Low',       description: 'Non-urgent, can wait',       icon: <Minus className="w-4 h-4" />,         color: 'border-gray-300 text-gray-600' },
+  { value: 'medium',    label: 'Medium',    description: 'Needs attention soon',        icon: <ArrowUp className="w-4 h-4" />,        color: 'border-blue-300 text-blue-600' },
+  { value: 'high',      label: 'High',      description: 'Urgent, affects daily life',  icon: <AlertTriangle className="w-4 h-4" />,  color: 'border-amber-400 text-amber-600' },
+  { value: 'emergency', label: 'Emergency', description: 'Immediate danger or hazard',  icon: <Zap className="w-4 h-4" />,            color: 'border-danger text-danger' },
 ]
 
 const ACCEPTED_TYPES = {
@@ -224,6 +224,7 @@ export const TicketForm = ({ onSubmit, isSubmitting }: TicketFormProps) => {
         placeholder="Brief description of the issue"
         required
         error={errors.title?.message}
+        helperText="10–150 characters"
         {...register('title')}
       />
 
@@ -235,6 +236,7 @@ export const TicketForm = ({ onSubmit, isSubmitting }: TicketFormProps) => {
         maxLength={1000}
         showCount
         error={errors.description?.message}
+        helperText="20–1000 characters"
         {...register('description')}
       />
 
@@ -266,6 +268,7 @@ export const TicketForm = ({ onSubmit, isSubmitting }: TicketFormProps) => {
         placeholder="e.g. Canal Road, near Sector F-7"
         required
         error={errors.location?.message}
+        helperText="At least 5 characters — street name, landmark, or area"
         {...register('location')}
       />
 

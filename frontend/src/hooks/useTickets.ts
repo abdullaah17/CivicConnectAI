@@ -24,14 +24,14 @@ const STATUS_MAP: Record<string, TicketStatus> = {
 }
 
 const PRIORITY_MAP: Record<string, TicketPriority> = {
-  low:       'Low',
-  medium:    'Medium',
-  high:      'High',
-  emergency: 'Emergency',
-  Low:       'Low',
-  Medium:    'Medium',
-  High:      'High',
-  Emergency: 'Emergency',
+  low:       'low',
+  medium:    'medium',
+  high:      'high',
+  emergency: 'emergency',
+  Low:       'low',
+  Medium:    'medium',
+  High:      'high',
+  Emergency: 'emergency',
 }
 
 function normalizeStatus(s: string): TicketStatus {
