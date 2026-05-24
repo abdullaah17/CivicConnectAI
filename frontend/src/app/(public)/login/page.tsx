@@ -67,20 +67,25 @@ function LoginForm() {
       const raw = data.data
       const user = normalizeUser(raw.user)
       const accessToken = raw.access_token ?? raw.accessToken
+      
       setAuth(user, accessToken)
       setShow2FA(false)
       setTempToken('')
-      if (redirectTo) {
-        window.location.href = redirectTo
-      } else if (user.role === 'staff') {
-        window.location.href = '/staff/dashboard'
-      } else if (user.role === 'dept_admin') {
-        window.location.href = '/admin/dashboard'
-      } else if (user.role === 'super_admin') {
-        window.location.href = '/superadmin/dashboard'
-      } else {
-        window.location.href = '/dashboard'
-      }
+      
+      // Small delay to ensure auth state is set before navigation
+      setTimeout(() => {
+        if (redirectTo) {
+          window.location.href = redirectTo
+        } else if (user.role === 'staff') {
+          window.location.href = '/staff/dashboard'
+        } else if (user.role === 'dept_admin') {
+          window.location.href = '/admin/dashboard'
+        } else if (user.role === 'super_admin') {
+          window.location.href = '/superadmin/dashboard'
+        } else {
+          window.location.href = '/dashboard'
+        }
+      }, 100)
     } catch (err: unknown) {
       toast.error(getErrorMessage(err, 'Invalid 2FA code. Please try again.'))
     } finally {

@@ -33,16 +33,21 @@ export const useLogin = () => {
     onSuccess: (result) => {
       if (result.requires2FA) return // caller handles 2FA modal
       if (!result.user || !result.accessToken) return
+      
       setAuth(result.user, result.accessToken)
-      // Use window.location.href (hard nav) so the cookie is guaranteed to be
-      // present before the next request hits middleware. router.push is a soft
-      // nav and is fine, but being explicit here prevents any timing edge case.
-      const dest = result.redirectTo
-        ?? (result.user.role === 'staff'       ? '/staff/dashboard'
-          : result.user.role === 'dept_admin'  ? '/admin/dashboard'
-          : result.user.role === 'super_admin' ? '/superadmin/dashboard'
-          : '/dashboard')
-      window.location.href = dest
+      
+      // Small delay to ensure auth state and cookie are set before navigation
+      setTimeout(() => {
+        // Use window.location.href (hard nav) so the cookie is guaranteed to be
+        // present before the next request hits middleware. router.push is a soft
+        // nav and is fine, but being explicit here prevents any timing edge case.
+        const dest = result.redirectTo
+          ?? (result.user.role === 'staff'       ? '/staff/dashboard'
+            : result.user.role === 'dept_admin'  ? '/admin/dashboard'
+            : result.user.role === 'super_admin' ? '/superadmin/dashboard'
+            : '/dashboard')
+        window.location.href = dest
+      }, 100)
     },
   })
 }
