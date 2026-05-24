@@ -5,10 +5,12 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Toaster } from 'react-hot-toast'
 import { queryClient } from '@/lib/queryClient'
 import { ThemeSync } from '@/components/common/ThemeSync'
+import { KeepAlive } from '@/components/common/KeepAlive'
 
 export const Providers = ({ children }: { children: React.ReactNode }) => (
   <QueryClientProvider client={queryClient}>
     <ThemeSync />
+    <KeepAlive />
     {children}
     <Toaster
       position="bottom-right"
