@@ -25,7 +25,7 @@ export default function ResidentDashboard() {
   return (
     <div>
       <PageHeader
-        title={`${greeting()}, ${user?.name?.split(' ')[0] || 'there'}`}
+        title={`${greeting()}, ${user?.name ? user.name.split(' ')[0] : 'there'}`}
         subtitle="Here's what's happening with your civic requests."
         actions={
           <Link href="/requests/new">

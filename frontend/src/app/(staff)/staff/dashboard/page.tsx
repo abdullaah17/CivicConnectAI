@@ -17,7 +17,7 @@ export default function StaffDashboard() {
   return (
     <div>
       <PageHeader
-        title={`Welcome, ${user?.name?.split(' ')[0] || 'Staff'}`}
+        title={`Welcome, ${user?.name ? user.name.split(' ')[0] : 'Staff'}`}
         subtitle="Your assigned tickets for today, sorted by SLA urgency."
       />
 
