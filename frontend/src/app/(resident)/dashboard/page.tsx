@@ -25,6 +25,7 @@ export default function ResidentDashboard() {
   return (
     <div>
       <PageHeader
+        variant="dark"
         title={`${greeting()}, ${user?.name ? user.name.split(' ')[0] : 'there'}`}
         subtitle="Here's what's happening with your civic requests."
         actions={
@@ -56,7 +57,7 @@ export default function ResidentDashboard() {
       {/* Recent tickets */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-gray-900 text-lg">Recent Requests</h2>
+          <h2 className="font-semibold text-white text-lg">Recent Requests</h2>
           <Link href="/requests" className="text-sm text-[#E1E0CC]/80 hover:text-[#E1E0CC] transition-colors font-medium">
             View all →
           </Link>
@@ -103,8 +104,8 @@ export default function ResidentDashboard() {
               {item.icon}
             </div>
             <div>
-              <p className="font-semibold text-gray-900 text-sm">{item.label}</p>
-              <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
+              <p className="font-semibold text-white text-sm">{item.label}</p>
+              <p className="text-xs text-white/60 mt-0.5">{item.desc}</p>
             </div>
           </Link>
         ))}
@@ -120,7 +121,7 @@ function StatCard({ label, value, icon }: { label: string; value: number; icon: 
       style={{ background: 'rgba(255,255,255,0.10)', backdropFilter: 'blur(12px)' }}
     >
       <div className="flex items-center justify-between mb-2">
-        <p className="text-xs text-gray-600 font-medium">{label}</p>
+        <p className="text-xs text-white/70 font-medium">{label}</p>
         {/* Black icon box with cream icon */}
         <div
           className="w-8 h-8 rounded-lg flex items-center justify-center"
@@ -130,7 +131,7 @@ function StatCard({ label, value, icon }: { label: string; value: number; icon: 
           {icon}
         </div>
       </div>
-      <p className="text-2xl font-bold text-gray-900">{value}</p>
+      <p className="text-2xl font-bold text-white">{value}</p>
     </div>
   )
 }
