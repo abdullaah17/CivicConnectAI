@@ -1,12 +1,12 @@
 /**
- * Test authentication utilities for development
- * This file helps test the authentication flow without needing real backend credentials
+ * Test authentication utilities for development only.
+ * Provides mock users so the auth flow can be tested without real backend credentials.
  */
 
 import { useAuthStore } from '@/store/authStore'
 import type { User } from '@/types/user'
 
-// Mock user data for testing
+// Mock user data matching the User type exactly
 export const mockUsers: Record<string, { user: User; password: string }> = {
   'resident@test.com': {
     user: {
@@ -14,13 +14,12 @@ export const mockUsers: Record<string, { user: User; password: string }> = {
       name: 'Test Resident',
       email: 'resident@test.com',
       role: 'resident',
-      profile_photo: null,
-      phone: '+1234567890',
-      address: '123 Test Street, Test City',
+      profile_photo_url: undefined,
+      is_active: true,
+      is_verified: true,
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
     },
-    password: 'Test@1234'
+    password: 'Test@1234',
   },
   'staff@test.com': {
     user: {
@@ -28,13 +27,12 @@ export const mockUsers: Record<string, { user: User; password: string }> = {
       name: 'Test Staff',
       email: 'staff@test.com',
       role: 'staff',
-      profile_photo: null,
-      phone: '+1234567891',
-      address: '456 Staff Avenue, Test City',
+      profile_photo_url: undefined,
+      is_active: true,
+      is_verified: true,
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
     },
-    password: 'Test@1234'
+    password: 'Test@1234',
   },
   'admin@test.com': {
     user: {
@@ -42,72 +40,57 @@ export const mockUsers: Record<string, { user: User; password: string }> = {
       name: 'Test Admin',
       email: 'admin@test.com',
       role: 'dept_admin',
-      profile_photo: null,
-      phone: '+1234567892',
-      address: '789 Admin Boulevard, Test City',
+      profile_photo_url: undefined,
+      is_active: true,
+      is_verified: true,
       created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
     },
-    password: 'Test@1234'
-  }
+    password: 'Test@1234',
+  },
 }
 
-/**
- * Mock login function for testing
- */
-export const mockLogin = (identifier: string, password: string): Promise<{ user: User; accessToken: string }> => {
-  return new Promise((resolve, reject) => {
+/** Mock login — resolves with a fake user + token, rejects on bad credentials. */
+export const mockLogin = (
+  identifier: string,
+  password: string,
+): Promise<{ user: User; accessToken: string }> =>
+  new Promise((resolve, reject) => {
     setTimeout(() => {
-      const userData = mockUsers[identifier.toLowerCase()]
-      
-      if (!userData || userData.password !== password) {
+      const entry = mockUsers[identifier.toLowerCase()]
+      if (!entry || entry.password !== password) {
         reject(new Error('Invalid credentials'))
         return
       }
-
       resolve({
-        user: userData.user,
-        accessToken: `mock-token-${userData.user.id}-${Date.now()}`
+        user: entry.user,
+        accessToken: `mock-token-${entry.user.id}-${Date.now()}`,
       })
-    }, 500) // Simulate network delay
+    }, 500)
   })
-}
 
-/**
- * Test authentication state
- */
+/** Log current auth state to the browser console (dev helper). */
 export const testAuthState = () => {
   const store = useAuthStore.getState()
-  console.log('Current auth state:', {
+  console.log('Auth state:', {
     isAuthenticated: store.isAuthenticated,
     user: store.user,
     hasToken: !!store.accessToken,
-    hasHydrated: store._hasHydrated
+    hasHydrated: store._hasHydrated,
   })
-  
-  // Check if cookie exists
+
   if (typeof document !== 'undefined') {
-    const cookies = document.cookie.split(';').reduce((acc, cookie) => {
-      const [key, value] = cookie.trim().split('=')
-      acc[key] = value
-      return acc
-    }, {} as Record<string, string>)
-    
-    console.log('Auth cookie:', cookies['civic-auth-signal'])
+    const cookie = document.cookie
+      .split(';')
+      .map((c) => c.trim())
+      .find((c) => c.startsWith('civic-auth-signal='))
+    console.log('Auth cookie:', cookie ?? 'not set')
   }
 }
 
-/**
- * Clear all authentication data (for testing)
- */
+/** Clear all auth data (dev helper). */
 export const clearAuthState = () => {
-  const { logout } = useAuthStore.getState()
-  logout()
-  
-  // Clear localStorage
+  useAuthStore.getState().logout()
   if (typeof window !== 'undefined') {
     localStorage.removeItem('civic-auth')
   }
-  
-  console.log('Auth state cleared')
 }

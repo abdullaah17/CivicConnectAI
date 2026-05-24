@@ -91,14 +91,14 @@ function normalizeNotification(raw: any): Notification {
 }
 
 export const useAnnouncements = (filters: AnnouncementFilters = {}) => {
-  const { isAuthenticated, _hasHydrated } = useAuthStore()
+  const { isAuthenticated, _hasHydrated, accessToken, user } = useAuthStore()
   return useQuery({
     queryKey: ['announcements', filters],
     queryFn: async () => {
       const { data } = await api.get<{ data: unknown[] }>('/announcements', { params: filters })
       return (data.data ?? []).map(normalizeAnnouncement)
     },
-    enabled: isAuthenticated && _hasHydrated,
+    enabled: isAuthenticated && _hasHydrated && !!accessToken && !!user,
   })
 }
 
@@ -115,14 +115,14 @@ export const useMarkAnnouncementRead = () => {
 }
 
 export const useEvents = (filters: { category?: string; date_from?: string; date_to?: string; page?: number } = {}) => {
-  const { isAuthenticated, _hasHydrated } = useAuthStore()
+  const { isAuthenticated, _hasHydrated, accessToken, user } = useAuthStore()
   return useQuery({
     queryKey: ['events', filters],
     queryFn: async () => {
       const { data } = await api.get<{ data: unknown[] }>('/events', { params: filters })
       return (data.data ?? []).map(normalizeEvent)
     },
-    enabled: isAuthenticated && _hasHydrated,
+    enabled: isAuthenticated && _hasHydrated && !!accessToken && !!user,
   })
 }
 
@@ -163,13 +163,13 @@ export const useUnregisterFromEvent = (eventId: string) => {
 }
 
 export const useNotifications = (params: { page?: number; limit?: number } = {}) => {
-  const { isAuthenticated, _hasHydrated } = useAuthStore()
+  const { isAuthenticated, _hasHydrated, accessToken, user } = useAuthStore()
   return useQuery({
     queryKey: ['notifications', params],
     queryFn: async () => {
       const { data } = await api.get<{ data: unknown[] }>('/notifications', { params })
       return (data.data ?? []).map(normalizeNotification)
     },
-    enabled: isAuthenticated && _hasHydrated,
+    enabled: isAuthenticated && _hasHydrated && !!accessToken && !!user,
   })
 }

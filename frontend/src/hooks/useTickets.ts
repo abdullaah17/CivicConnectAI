@@ -152,7 +152,7 @@ interface PaginatedTickets {
 
 // Resident: my tickets
 export const useMyTickets = (filters: TicketFilters = {}) => {
-  const { isAuthenticated, _hasHydrated } = useAuthStore()
+  const { isAuthenticated, _hasHydrated, accessToken, user } = useAuthStore()
   return useQuery({
     queryKey: ['tickets', filters],
     queryFn: async () => {
@@ -163,7 +163,7 @@ export const useMyTickets = (filters: TicketFilters = {}) => {
         tickets: raw.tickets.map(normalizeTicketListItem),
       }
     },
-    enabled: isAuthenticated && _hasHydrated,
+    enabled: isAuthenticated && _hasHydrated && !!accessToken && !!user,
   })
 }
 
@@ -180,7 +180,7 @@ export const useTicket = (ticketId: string) =>
 
 // Staff: assigned queue
 export const useStaffQueue = (filters: TicketFilters = {}) => {
-  const { isAuthenticated, _hasHydrated } = useAuthStore()
+  const { isAuthenticated, _hasHydrated, accessToken, user } = useAuthStore()
   return useQuery({
     queryKey: ['tickets', 'assigned', filters],
     queryFn: async () => {
@@ -193,7 +193,7 @@ export const useStaffQueue = (filters: TicketFilters = {}) => {
         tickets: raw.tickets.map(normalizeTicketListItem),
       }
     },
-    enabled: isAuthenticated && _hasHydrated,
+    enabled: isAuthenticated && _hasHydrated && !!accessToken && !!user,
   })
 }
 
@@ -216,24 +216,15 @@ export const useDeptTickets = (deptId: string, filters: TicketFilters = {}) =>
 
 // Ticket stats
 export const useTicketStats = () => {
-  const { isAuthenticated, _hasHydrated, accessToken } = useAuthStore()
+  const { isAuthenticated, _hasHydrated, accessToken, user } = useAuthStore()
   return useQuery({
     queryKey: ['tickets', 'stats'],
     queryFn: async () => {
-      console.log('useTicketStats API call:', { 
-        isAuthenticated, 
-        _hasHydrated, 
-        hasToken: !!accessToken,
-        tokenPreview: accessToken ? `${accessToken.substring(0, 10)}...` : 'none'
-      })
       const { data } = await api.get<{ data: TicketStats }>('/tickets/stats')
       return data.data
     },
-    enabled: isAuthenticated && _hasHydrated,
-    retry: (failureCount, error) => {
-      console.log('useTicketStats retry:', { failureCount, error })
-      return failureCount < 2
-    }
+    enabled: isAuthenticated && _hasHydrated && !!accessToken && !!user,
+    staleTime: 30_000,
   })
 }
 

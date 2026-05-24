@@ -73,14 +73,14 @@ export const usePermitTypes = () =>
   })
 
 export const useMyPermits = () => {
-  const { isAuthenticated, _hasHydrated } = useAuthStore()
+  const { isAuthenticated, _hasHydrated, accessToken, user } = useAuthStore()
   return useQuery({
     queryKey: ['permits', 'mine'],
     queryFn: async () => {
       const { data } = await api.get<{ data: PermitListItem[] }>('/permits')
       return data.data.map(normalizePermitListItem)
     },
-    enabled: isAuthenticated && _hasHydrated,
+    enabled: isAuthenticated && _hasHydrated && !!accessToken && !!user,
   })
 }
 
