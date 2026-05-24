@@ -67,6 +67,7 @@ export default function ResidentDashboard() {
           <SkeletonList count={3} />
         ) : !ticketsData?.tickets?.length ? (
           <EmptyState
+            variant="dark"
             icon={<Ticket className="w-12 h-12" />}
             title="No requests yet"
             description="Submit your first civic request and we'll track it for you."
