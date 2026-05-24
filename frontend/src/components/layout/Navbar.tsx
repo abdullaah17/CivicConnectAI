@@ -15,7 +15,7 @@ export const Navbar = () => {
   const router = useRouter()
   const { user, logout } = useAuthStore()
   const { unreadCount } = useNotificationStore()
-  const { toggleSidebar, theme, toggleTheme } = useUIStore()
+  const { toggleSidebar, toggleTheme, theme } = useUIStore()
   const [notifOpen, setNotifOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   const userMenuRef = useRef<HTMLDivElement>(null)
@@ -43,24 +43,19 @@ export const Navbar = () => {
   }
 
   return (
-    <header className={clsx(
-      'sticky top-0 z-40 h-16 border-b shadow-sm transition-colors duration-300',
-      theme === 'dark'
-        ? 'bg-slate-900/95 border-white/10'
-        : 'glass border-white/20'
-    )}>
+    <header className="sticky top-0 z-40 h-16 transition-colors duration-300">
       <div className="flex items-center justify-between h-full px-4 md:px-6">
         {/* Left: hamburger + logo */}
         <div className="flex items-center gap-3">
           <button
             onClick={toggleSidebar}
-            className="lg:hidden p-2 rounded text-gray-600 hover:bg-gray-100 min-h-[44px] min-w-[44px] flex items-center justify-center"
+            className="lg:hidden p-2 rounded text-white/80 hover:bg-white/10 min-h-[44px] min-w-[44px] flex items-center justify-center"
             aria-label="Toggle navigation menu"
           >
             <Menu className="w-5 h-5" />
           </button>
           <Link href="/" className="flex items-center gap-2">
-            <span className="hidden sm:block font-display font-bold text-gray-900 text-lg">
+            <span className="hidden sm:block font-display font-bold text-white text-lg drop-shadow">
               CivicConnect
             </span>
           </Link>
@@ -71,7 +66,7 @@ export const Navbar = () => {
           {/* Dark mode toggle */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded text-gray-600 hover:bg-gray-100 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+            className="p-2 rounded text-white/80 hover:bg-white/10 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
             aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {theme === 'dark'
@@ -84,7 +79,7 @@ export const Navbar = () => {
             <button
               onClick={() => setNotifOpen((v) => !v)}
               className={clsx(
-                'relative p-2 rounded text-gray-600 hover:bg-gray-100 transition-colors',
+                'relative p-2 rounded text-white/80 hover:bg-white/10 transition-colors',
                 'min-h-[44px] min-w-[44px] flex items-center justify-center'
               )}
               aria-label={`Notifications${unreadCount > 0 ? `, ${unreadCount} unread` : ''}`}
@@ -110,7 +105,7 @@ export const Navbar = () => {
           <div className="relative" ref={userMenuRef}>
             <button
               onClick={() => setUserMenuOpen((v) => !v)}
-              className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-gray-100 transition-colors min-h-[44px]"
+              className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-white/10 transition-colors min-h-[44px]"
               aria-expanded={userMenuOpen}
               aria-haspopup="true"
               aria-label="User menu"
@@ -123,10 +118,10 @@ export const Navbar = () => {
                   <User className="w-4 h-4 text-[#E1E0CC]" aria-hidden="true" />
                 )}
               </div>
-              <span className="hidden md:block text-sm font-medium text-gray-700 max-w-[120px] truncate">
+              <span className="hidden md:block text-sm font-medium text-white/90 max-w-[120px] truncate">
                 {user?.name}
               </span>
-              <ChevronDown className="w-4 h-4 text-gray-400 hidden md:block" aria-hidden="true" />
+              <ChevronDown className="w-4 h-4 text-white/60 hidden md:block" aria-hidden="true" />
             </button>
 
             {userMenuOpen && (

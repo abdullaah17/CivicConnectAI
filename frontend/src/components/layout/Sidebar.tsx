@@ -95,7 +95,7 @@ export const Sidebar = ({ role }: SidebarProps) => {
                   'min-h-[44px]',
                   isActive
                     ? 'bg-black text-[#E1E0CC]'
-                    : 'text-gray-700 hover:bg-white/30 hover:text-gray-900'
+                    : 'text-white/80 hover:bg-white/10 hover:text-white'
                 )}
                 aria-current={isActive ? 'page' : undefined}
               >

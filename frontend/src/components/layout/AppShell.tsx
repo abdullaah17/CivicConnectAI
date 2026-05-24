@@ -59,12 +59,7 @@ export const AppShell = ({ children, role }: AppShellProps) => {
       <div className="flex flex-1 overflow-hidden">
         {/* Desktop sidebar */}
         <aside
-          className={clsx(
-            'hidden lg:flex flex-col w-60 flex-shrink-0 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto border-r',
-            isDark
-              ? 'bg-slate-900/95 border-white/10'
-              : 'glass border-white/20'
-          )}
+          className="hidden lg:flex flex-col w-60 flex-shrink-0 sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto"
           aria-label="Sidebar navigation"
         >
           <Sidebar role={effectiveRole as UserRole} />
@@ -79,10 +74,7 @@ export const AppShell = ({ children, role }: AppShellProps) => {
               aria-hidden="true"
             />
             <aside
-              className={clsx(
-                'fixed left-0 top-0 bottom-0 z-40 w-72 shadow-xl lg:hidden flex flex-col pt-16 overflow-y-auto',
-                isDark ? 'bg-slate-900/98 border-r border-white/10' : 'glass'
-              )}
+              className="fixed left-0 top-0 bottom-0 z-40 w-72 shadow-xl lg:hidden flex flex-col pt-16 overflow-y-auto"
               aria-label="Mobile navigation"
             >
               <Sidebar role={effectiveRole as UserRole} />
