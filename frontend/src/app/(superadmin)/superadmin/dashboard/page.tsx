@@ -20,6 +20,7 @@ export default function SuperAdminDashboard() {
   return (
     <div>
       <PageHeader
+        variant="dark"
         title="System Overview"
         subtitle="City-wide civic services performance at a glance."
         actions={
@@ -46,7 +47,7 @@ export default function SuperAdminDashboard() {
         )}
       </div>
 
-      <h2 className="font-semibold text-gray-900 text-lg mb-4">Quick Access</h2>
+      <h2 className="font-semibold text-white text-lg mb-4">Quick Access</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {[
           { href: '/superadmin/departments', icon: <Building2 className="w-6 h-6" />, label: 'Departments',        desc: 'Manage department config and SLA defaults' },
@@ -70,8 +71,8 @@ export default function SuperAdminDashboard() {
               {item.icon}
             </div>
             <div>
-              <p className="font-semibold text-gray-900">{item.label}</p>
-              <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
+              <p className="font-semibold text-white">{item.label}</p>
+              <p className="text-xs text-white/60 mt-0.5">{item.desc}</p>
             </div>
           </Link>
         ))}

@@ -72,6 +72,7 @@ export default function ReportsPage() {
   return (
     <div>
       <PageHeader
+        variant="dark"
         title="Reports"
         subtitle="Generate and export system-wide reports for city council."
         breadcrumbs={[{ label: 'Overview', href: '/superadmin/dashboard' }, { label: 'Reports' }]}
@@ -106,7 +107,7 @@ export default function ReportsPage() {
       </div>
 
       {/* Preview stats */}
-      <h2 className="font-semibold text-gray-900 mb-4">Report Preview</h2>
+      <h2 className="font-semibold text-white mb-4">Report Preview</h2>
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {isLoading ? (
           Array.from({ length: 4 }).map((_, i) => <SkeletonKPICard key={i} />)

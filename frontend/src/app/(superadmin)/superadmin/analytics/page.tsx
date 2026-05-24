@@ -95,6 +95,7 @@ function AnalyticsContent() {
   return (
     <div>
       <PageHeader
+        variant="dark"
         title="System Analytics"
         subtitle="City-wide performance metrics across all departments."
         breadcrumbs={[{ label: 'Overview', href: '/superadmin/dashboard' }, { label: 'Analytics' }]}
@@ -109,7 +110,7 @@ function AnalyticsContent() {
         {DATE_RANGES.map((r) => (
           <button key={r.value} onClick={() => setDateRange(r.value)}
             className={`px-3 py-1.5 rounded text-sm font-medium transition-colors ${
-              dateRange === r.value ? 'bg-primary-700 text-white' : 'bg-white text-gray-600 border border-gray-300'
+              dateRange === r.value ? 'bg-black text-[#E1E0CC]' : 'bg-white/10 text-white border border-white/20 hover:bg-white/20'
             }`}
           >{r.label}</button>
         ))}

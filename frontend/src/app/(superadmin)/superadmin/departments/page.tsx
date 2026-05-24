@@ -90,6 +90,7 @@ export default function DepartmentsPage() {
   return (
     <div>
       <PageHeader
+        variant="dark"
         title="Departments"
         subtitle="System-wide department overview and SLA configuration."
         breadcrumbs={[{ label: 'Overview', href: '/superadmin/dashboard' }, { label: 'Departments' }]}
@@ -99,6 +100,7 @@ export default function DepartmentsPage() {
         <SkeletonList count={3} />
       ) : !departments?.length ? (
         <EmptyState
+          variant="dark"
           icon={<Building2 className="w-12 h-12" />}
           title="No departments configured"
           description="Contact system administrator."

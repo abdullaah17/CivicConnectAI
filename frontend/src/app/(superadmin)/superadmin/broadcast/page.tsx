@@ -67,6 +67,7 @@ export default function EmergencyBroadcastPage() {
   return (
     <div className="max-w-2xl">
       <PageHeader
+        variant="dark"
         title="Emergency Broadcast"
         subtitle="Send an emergency alert to all residents. This will display as a full-screen banner."
         breadcrumbs={[

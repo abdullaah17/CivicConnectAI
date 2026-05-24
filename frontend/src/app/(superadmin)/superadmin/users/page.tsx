@@ -60,6 +60,7 @@ export default function UserManagementPage() {
   return (
     <div>
       <PageHeader
+        variant="dark"
         title="User Management"
         subtitle="View and manage all users across the system."
         breadcrumbs={[{ label: 'Overview', href: '/superadmin/dashboard' }, { label: 'Users' }]}
@@ -73,7 +74,7 @@ export default function UserManagementPage() {
             placeholder="Search by name or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 rounded-sm border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary-700"
+            className="w-full pl-9 pr-3 py-2 rounded-sm border border-white/30 bg-white/10 text-white placeholder-white/50 text-sm focus:outline-none focus:ring-2 focus:ring-white/40 backdrop-blur-sm"
             aria-label="Search users"
           />
         </div>
@@ -83,7 +84,7 @@ export default function UserManagementPage() {
       {isLoading ? (
         <SkeletonList count={5} />
       ) : !filtered?.length ? (
-        <EmptyState icon={<Users className="w-12 h-12" />} title="No users found" description="No users match your search." />
+        <EmptyState variant="dark" icon={<Users className="w-12 h-12" />} title="No users found" description="No users match your search." />
       ) : (
         <div className="bg-white rounded-lg shadow-card border border-gray-100 overflow-hidden">
           <div className="overflow-x-auto">

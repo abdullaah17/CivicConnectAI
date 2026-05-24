@@ -34,6 +34,7 @@ export default function AuditLogsPage() {
   return (
     <div>
       <PageHeader
+        variant="dark"
         title="Audit Logs"
         subtitle="All super admin actions with IP address and timestamp."
         breadcrumbs={[{ label: 'Overview', href: '/superadmin/dashboard' }, { label: 'Audit Logs' }]}
@@ -42,7 +43,7 @@ export default function AuditLogsPage() {
       {isLoading ? (
         <SkeletonList count={5} />
       ) : !data?.logs?.length ? (
-        <EmptyState icon={<ShieldCheck className="w-12 h-12" />} title="No audit logs" description="No actions have been recorded yet." />
+        <EmptyState variant="dark" icon={<ShieldCheck className="w-12 h-12" />} title="No audit logs" description="No actions have been recorded yet." />
       ) : (
         <>
           <div className="bg-white rounded-lg shadow-card border border-gray-100 overflow-hidden mb-4">
@@ -82,7 +83,7 @@ export default function AuditLogsPage() {
           {data.total > 20 && (
             <div className="flex items-center justify-center gap-2">
               <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page === 1}>Previous</Button>
-              <span className="text-sm text-gray-500">Page {page} of {Math.ceil(data.total / 20)}</span>
+              <span className="text-sm text-white/70">Page {page} of {Math.ceil(data.total / 20)}</span>
               <Button variant="outline" size="sm" onClick={() => setPage((p) => p + 1)} disabled={page >= Math.ceil(data.total / 20)}>Next</Button>
             </div>
           )}
