@@ -214,13 +214,15 @@ export const useDeptTickets = (deptId: string, filters: TicketFilters = {}) =>
     enabled: !!deptId,
   })
 
-// Ticket stats
+// Ticket stats — residents hit /my-stats (their own tickets only);
+// staff/admin hit /stats (department-wide)
 export const useTicketStats = () => {
   const { isAuthenticated, _hasHydrated, accessToken, user } = useAuthStore()
   return useQuery({
     queryKey: ['tickets', 'stats'],
     queryFn: async () => {
-      const { data } = await api.get<{ data: TicketStats }>('/tickets/stats')
+      const endpoint = user?.role === 'resident' ? '/tickets/my-stats' : '/tickets/stats'
+      const { data } = await api.get<{ data: TicketStats }>(endpoint)
       return data.data
     },
     enabled: isAuthenticated && _hasHydrated && !!accessToken && !!user,
