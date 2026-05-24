@@ -60,9 +60,6 @@ export const Navbar = () => {
             <Menu className="w-5 h-5" />
           </button>
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-black rounded flex items-center justify-center">
-              <span className="text-[#E1E0CC] text-xs font-bold font-display">CC</span>
-            </div>
             <span className="hidden sm:block font-display font-bold text-gray-900 text-lg">
               CivicConnect
             </span>
