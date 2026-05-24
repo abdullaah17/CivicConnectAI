@@ -216,14 +216,24 @@ export const useDeptTickets = (deptId: string, filters: TicketFilters = {}) =>
 
 // Ticket stats
 export const useTicketStats = () => {
-  const { isAuthenticated, _hasHydrated } = useAuthStore()
+  const { isAuthenticated, _hasHydrated, accessToken } = useAuthStore()
   return useQuery({
     queryKey: ['tickets', 'stats'],
     queryFn: async () => {
+      console.log('useTicketStats API call:', { 
+        isAuthenticated, 
+        _hasHydrated, 
+        hasToken: !!accessToken,
+        tokenPreview: accessToken ? `${accessToken.substring(0, 10)}...` : 'none'
+      })
       const { data } = await api.get<{ data: TicketStats }>('/tickets/stats')
       return data.data
     },
     enabled: isAuthenticated && _hasHydrated,
+    retry: (failureCount, error) => {
+      console.log('useTicketStats retry:', { failureCount, error })
+      return failureCount < 2
+    }
   })
 }
 

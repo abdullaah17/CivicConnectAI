@@ -22,6 +22,17 @@ api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
+    console.log('API request with token:', { 
+      url: config.url, 
+      method: config.method,
+      hasAuth: !!config.headers.Authorization,
+      tokenPreview: `${token.substring(0, 10)}...`
+    })
+  } else {
+    console.log('API request without token:', { 
+      url: config.url, 
+      method: config.method 
+    })
   }
   return config
 })
