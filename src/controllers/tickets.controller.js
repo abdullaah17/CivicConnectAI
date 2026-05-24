@@ -251,20 +251,54 @@ async function getResidentStats(req, res) {
   });
 }
 
-// GET /tickets/stats
+// GET /tickets/stats  (staff / dept_admin / super_admin)
 async function getStats(req, res) {
   const prisma = getPrisma();
-  const { role, department_id: userDeptId } = req.user;
-  const deptId = role === 'super_admin' ? req.query.department_id : userDeptId;
+  const { role, sub: userId, department_id: userDeptId } = req.user;
 
-  const where = deptId ? { departmentId: deptId } : {};
-  const byStatus = await prisma.ticket.groupBy({ by: ['status'], where, _count: { status: true } });
-  const total = await prisma.ticket.count({ where });
+  // Scope: super_admin can pass ?department_id to drill down; others are scoped
+  // to their own department. Staff with no department_id see nothing (empty).
+  let where = {};
+  if (role === 'super_admin') {
+    if (req.query.department_id) where = { departmentId: req.query.department_id };
+    // else no filter — system-wide
+  } else {
+    if (!userDeptId) {
+      // Staff not yet assigned to a department — return zeros
+      return res.status(200).json({
+        success: true,
+        data: { total: 0, open: 0, in_progress: 0, resolved: 0, closed: 0, sla_breached: 0, by_status: {} },
+      });
+    }
+    where = { departmentId: userDeptId };
+  }
+
+  const now = new Date();
+  const activeStatuses = ['submitted', 'under_review', 'assigned', 'in_progress'];
+
+  const [byStatus, total, slaBreached] = await Promise.all([
+    prisma.ticket.groupBy({ by: ['status'], where, _count: { status: true } }),
+    prisma.ticket.count({ where }),
+    prisma.ticket.count({
+      where: { ...where, slaDeadline: { lt: now }, status: { in: activeStatuses } },
+    }),
+  ]);
 
   const statusMap = {};
   byStatus.forEach((r) => { statusMap[r.status] = r._count.status; });
 
-  return res.status(200).json({ success: true, data: { total, by_status: statusMap } });
+  return res.status(200).json({
+    success: true,
+    data: {
+      total,
+      open:         statusMap['submitted']    ?? 0,
+      in_progress:  statusMap['in_progress']  ?? 0,
+      resolved:     statusMap['resolved']     ?? 0,
+      closed:       statusMap['closed']       ?? 0,
+      sla_breached: slaBreached,
+      by_status:    statusMap,
+    },
+  });
 }
 
 module.exports = { listTickets, createTicket, getTicket, updateStatus, assignTicket, getComments, addComment, getHistory, getAttachments, uploadAttachment, myTickets, getStats, getResidentStats };
