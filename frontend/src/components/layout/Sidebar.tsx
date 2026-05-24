@@ -83,7 +83,16 @@ export const Sidebar = ({ role }: SidebarProps) => {
     <nav aria-label="Main navigation" className="flex flex-col h-full py-4">
       <ul className="flex-1 space-y-1 px-3" role="list">
         {navItems.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+          const isActive =
+            pathname === item.href ||
+            (pathname.startsWith(item.href + '/') &&
+              item.href !== '/' &&
+              !navItems.some(
+                (other) =>
+                  other.href !== item.href &&
+                  pathname.startsWith(other.href + '/') &&
+                  other.href.length > item.href.length
+              ))
           return (
             <li key={item.href}>
               <Link
